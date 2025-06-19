@@ -1,17 +1,10 @@
-{
-  "speisen": [
-    { "name": "Gemischter Salat", "preis": 8 },
-    { "name": "Schnitzel vom Grill mit Pommes", "preis": 19 },
-    { "name": "Bratwurst mit Pommes", "preis": 14 },
-    { "name": "Vanilleglace", "preis": 5 },
-    { "name": "Schokopudding", "preis": 5 }
-  ],
-  "getraenke": [
-    { "name": "Cola", "preis": 3 },
-    { "name": "Mineral", "preis": 5 },
-    { "name": "Apfelschorle", "preis": 5 },
-    { "name": "Kaffee", "preis": 7 },
-    { "name": "Tee", "preis": 5 },
-    { "name": "Kleines Bier", "preis": 4 }
-  ]
-}
+[
+  { "name": "Schnitzel mit Pommes", "price": 19, "type": "essen" },
+  { "name": "Bratwurst mit Pommes", "price": 14, "type": "essen" },
+  { "name": "Vegiteller", "price": 13, "type": "essen" },
+  { "name": "Gemischter Salat", "price": 8, "type": "essen" },
+  { "name": "Mineral", "price": 3, "type": "getränk" },
+  { "name": "Cola", "price": 5, "type": "getränk" },
+  { "name": "Weisswein", "price": 7, "type": "getränk" },
+  { "name": "Kleines Bier", "price": 4, "type": "getränk" }
+]
