@@ -1,139 +1,32 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Küchenansicht</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
     <h1>Küchenansicht</h1>
 
-    <button onclick="toggleMenu()">📋 Menü bearbeiten</button>
-    <div id="menuEditor" style="display:none;"></div>
+    <div style="text-align: right;">
+      <button onclick="toggleMenu()">🛠 Menü bearbeiten</button>
+    </div>
 
-    <div id="menuOverview"></div>
-    <hr>
-    <div id="orders"></div>
+    <div id="menu-settings" style="display:none;">
+      <h2>Menü bearbeiten</h2>
+      <div id="menu-edit-container"></div>
+      <button onclick="saveMenu()">Menü speichern</button>
+    </div>
+
+    <h2>Offene Bestellungen</h2>
+    <div id="order-list"></div>
+
+    <h2>Zusammenfassung</h2>
+    <div id="summary"></div>
   </div>
 
-  <script>
-    async function loadOrders() {
-      const res = await fetch('/orders');
-      const data = await res.json();
-
-      // Gruppieren nach Artikel
-      const totalMap = {};
-      const ordersList = document.getElementById('orders');
-      ordersList.innerHTML = '';
-
-      data
-        .filter(order => order.status !== 'abgeschlossen')
-        .sort((a, b) => new Date(a.time) - new Date(b.time))
-        .forEach(order => {
-          order.items.forEach(item => {
-            if (!totalMap[item.name]) totalMap[item.name] = 0;
-            totalMap[item.name] += item.quantity;
-          });
-
-          const div = document.createElement('div');
-          div.className = 'order-block';
-          div.innerHTML = `
-            <h4>Tisch ${order.table}</h4>
-            <ul>
-              ${order.items.map(i => `<li>${i.quantity}x ${i.name}</li>`).join('')}
-            </ul>
-            <p>Status: <strong>${order.status}</strong></p>
-            <button onclick="updateStatus('${order.id}', 'in_bearbeitung')">In Bearbeitung</button>
-            <button onclick="updateStatus('${order.id}', 'abholbereit')">Abholbereit</button>
-            <button onclick="updateStatus('${order.id}', 'abgeschlossen')">Abschließen</button>
-          `;
-          ordersList.appendChild(div);
-        });
-
-      // Menüanzahl-Anzeige
-      const overview = document.getElementById('menuOverview');
-      overview.innerHTML = '<h3>Offene Artikel</h3><ul>' + 
-        Object.entries(totalMap)
-              .map(([name, qty]) => `<li>${qty}x ${name}</li>`)
-              .join('') + '</ul>';
-    }
-
-    async function updateStatus(id, status) {
-      await fetch(`/status/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      loadOrders();
-    }
-
-    function toggleMenu() {
-      const el = document.getElementById('menuEditor');
-      if (el.style.display === 'none') {
-        editMenu();
-        el.style.display = 'block';
-      } else {
-        el.style.display = 'none';
-      }
-    }
-
-    async function editMenu() {
-      const res = await fetch('/menu.json');
-      const menu = await res.json();
-
-      const editor = document.getElementById('menuEditor');
-      editor.innerHTML = '<h3>Menü bearbeiten</h3>';
-
-      for (const section of ['speisen', 'getraenke']) {
-        const title = document.createElement('h4');
-        title.textContent = section === 'speisen' ? 'Speisen' : 'Getränke';
-        editor.appendChild(title);
-
-        menu[section].forEach((item, index) => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'menu-edit';
-
-          const nameInput = document.createElement('input');
-          nameInput.value = item.name;
-
-          const priceInput = document.createElement('input');
-          priceInput.type = 'number';
-          priceInput.min = 0;
-          priceInput.value = item.price;
-
-          wrapper.appendChild(nameInput);
-          wrapper.appendChild(priceInput);
-          editor.appendChild(wrapper);
-        });
-      }
-
-      const saveBtn = document.createElement('button');
-      saveBtn.textContent = 'Speichern';
-      saveBtn.onclick = async () => {
-        const newMenu = { speisen: [], getraenke: [] };
-        const inputs = editor.querySelectorAll('input');
-
-        for (let i = 0; i < inputs.length; i += 2) {
-          const name = inputs[i].value;
-          const price = parseFloat(inputs[i + 1].value);
-          const section = i < (inputs.length / 2) ? 'speisen' : 'getraenke';
-          newMenu[section].push({ name, price });
-        }
-
-        await fetch('/menu.json', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newMenu)
-        });
-        alert('Menü aktualisiert!');
-      };
-
-      editor.appendChild(saveBtn);
-    }
-
-    loadOrders();
-    setInterval(loadOrders, 5000);
-  </script>
+  <script src="kitchen.js"></script>
 </body>
 </html>
