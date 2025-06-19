@@ -1,1 +1,45 @@
-<!DOCTYPE html><html><head><title>Bestellung</title></head><body><h1>Gästeansicht</h1></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bestellung</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Gästeansicht</h1>
+
+  <form id="orderForm">
+    <label>Menüwahl:</label>
+    <select name="item" id="itemSelect"></select>
+    <button type="submit">Bestellen</button>
+  </form>
+
+  <p id="msg"></p>
+
+  <script>
+    async function loadMenu() {
+      const res = await fetch('menu.json');
+      const menu = await res.json();
+      const select = document.getElementById('itemSelect');
+      menu.forEach(entry => {
+        const option = document.createElement('option');
+        option.value = entry.name;
+        option.textContent = `${entry.name} – ${entry.price} CHF`;
+        select.appendChild(option);
+      });
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const item = document.getElementById('itemSelect').value;
+      const res = await fetch('/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item })
+      });
+      document.getElementById('msg').textContent = res.ok ? 'Bestellung gesendet!' : 'Fehler!';
+    });
+
+    loadMenu();
+  </script>
+</body>
+</html>
