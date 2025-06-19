@@ -77,3 +77,37 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Küche – Bestellungen</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Küchenansicht</h1>
+
+  <div id="login">
+    <label for="code">Küchen-Code:</label>
+    <input type="password" id="code" placeholder="z. B. 885700">
+    <button onclick="checkCode()">Login</button>
+  </div>
+
+  <div id="kitchen-panel" style="display:none">
+    <button onclick="openMenuEditor()">🛠️ Menü bearbeiten</button>
+    <h2>Offene Bestellungen</h2>
+    <div id="orders"></div>
+    <h3>Offene Mengen</h3>
+    <div id="summary"></div>
+  </div>
+
+  <div id="menu-editor" style="display:none">
+    <h2>Menü bearbeiten</h2>
+    <textarea id="menu-editor-area" rows="20" cols="80"></textarea><br>
+    <button onclick="saveMenu()">💾 Speichern</button>
+    <button onclick="closeMenuEditor()">❌ Schließen</button>
+  </div>
+
+  <script src="kitchen.js"></script>
+</body>
+</html>
