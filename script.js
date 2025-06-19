@@ -1,83 +1,102 @@
-let menuData = [];
-let selectedItems = {};
+let menu = [];
+let order = {};
+let currentStatus = "Bestellt";
 
 async function loadMenu() {
-  const res = await fetch('/menu.json');
-  menuData = await res.json();
-  renderMenu();
-}
+  const res = await fetch('menu.json');
+  menu = await res.json();
 
-function renderMenu() {
-  const foodDiv = document.getElementById('food-menu');
-  const drinkDiv = document.getElementById('drink-menu');
-  foodDiv.innerHTML = '';
-  drinkDiv.innerHTML = '';
-  selectedItems = {};
+  const container = document.getElementById('menu-container');
+  container.innerHTML = '';
 
-  menuData.forEach((item, index) => {
-    const container = item.category === 'drink' ? drinkDiv : foodDiv;
-    const row = document.createElement('div');
-    row.className = 'menu-item';
-    row.innerHTML = `
-      <label>${item.name} – CHF ${item.price.toFixed(2)}</label>
-      <input type="number" min="0" max="10" value="0" onchange="updateCount(${index}, this.value)">
+  for (let item of menu) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'menu-item';
+    
+    itemDiv.innerHTML = `
+      <span>${item.name} (${item.price} CHF)</span>
+      <input type="number" min="0" max="10" value="0" onchange="updateOrder('${item.name}', ${item.price}, this.value)">
     `;
-    container.appendChild(row);
-    selectedItems[index] = 0;
-  });
-  updateTotal();
+
+    container.appendChild(itemDiv);
+  }
 }
 
-function updateCount(index, value) {
-  selectedItems[index] = parseInt(value) || 0;
-  updateTotal();
+function updateOrder(name, price, quantity) {
+  if (quantity > 0) {
+    order[name] = { quantity: parseInt(quantity), price: price };
+  } else {
+    delete order[name];
+  }
+
+  displaySummary();
 }
 
-function updateTotal() {
+function displaySummary() {
+  const summary = document.getElementById('summary');
+  summary.innerHTML = '';
+
   let total = 0;
-  Object.entries(selectedItems).forEach(([index, count]) => {
-    const item = menuData[index];
-    total += item.price * count;
-  });
-  document.getElementById('total-price').innerText = `Gesamt: CHF ${total.toFixed(2)}`;
+  for (let [name, info] of Object.entries(order)) {
+    const line = document.createElement('p');
+    line.textContent = `${info.quantity}x ${name} – ${info.price * info.quantity} CHF`;
+    summary.appendChild(line);
+    total += info.price * info.quantity;
+  }
+
+  if (total > 0) {
+    const totalLine = document.createElement('p');
+    totalLine.innerHTML = `<strong>Gesamt: ${total.toFixed(2)} CHF</strong>`;
+    summary.appendChild(totalLine);
+  }
 }
 
 async function submitOrder() {
-  const table = document.getElementById('table').value.trim();
-  if (!table) return alert("Bitte Tischnummer eingeben!");
+  const table = document.getElementById('table').value;
+  if (!table || Object.keys(order).length === 0) {
+    alert("Bitte Tischnummer eingeben und mindestens 1 Produkt wählen.");
+    return;
+  }
 
   const items = [];
-  Object.entries(selectedItems).forEach(([index, count]) => {
-    if (count > 0) {
-      items.push({ ...menuData[index], quantity: count });
-    }
-  });
-  if (items.length === 0) return alert("Bitte mindestens ein Produkt auswählen!");
+  for (let [name, info] of Object.entries(order)) {
+    items.push(`${info.quantity}x ${name}`);
+  }
 
-  const res = await fetch('/order', {
+  await fetch('/order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ table, items })
   });
 
-  if (res.ok) {
-    document.body.innerHTML = `
-      <h2>Vielen Dank für Ihre Bestellung!</h2>
-      <p>Status: <span id="order-status">Bestellt</span></p>
-      <script>
-        const table = "${table}";
-        function checkStatus() {
-          fetch('/status/' + table)
-            .then(res => res.json())
-            .then(data => {
-              document.getElementById('order-status').innerText = data.status || 'Unbekannt';
-            });
-        }
-        checkStatus();
-        setInterval(checkStatus, 5000);
-      </script>
-    `;
+  currentStatus = "Bestellt";
+  updateStatusDisplay();
+}
+
+function updateStatusDisplay() {
+  const statusLine = document.getElementById('statusDisplay');
+  const steps = ["Bestellt", "Bezahlt", "In Bearbeitung", "Abholbereit"];
+
+  statusLine.innerHTML = steps.map(s => {
+    if (s === currentStatus) return `<span class="active">${s}</span>`;
+    if (steps.indexOf(s) < steps.indexOf(currentStatus)) return `<span class="done">${s}</span>`;
+    return `<span>${s}</span>`;
+  }).join(" ➔ ");
+}
+
+async function checkStatusLive() {
+  const res = await fetch('/orders');
+  const data = await res.json();
+  const table = document.getElementById('table').value;
+
+  if (!table) return;
+
+  const latest = data.reverse().find(o => o.table == table);
+  if (latest && latest.status) {
+    currentStatus = latest.status;
+    updateStatusDisplay();
   }
 }
 
+setInterval(checkStatusLive, 5000);
 loadMenu();
