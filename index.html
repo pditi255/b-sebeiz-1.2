@@ -2,50 +2,30 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Menübestellung</title>
+  <title>Willkommen beim Fest!</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Willkommen zum Fest</h1>
-  <form id="orderForm">
-    <label for="table">Tisch-Nr:</label>
-    <input type="number" id="table" name="table" required><br><br>
+  <h1>Willkommen beim Fest!</h1>
 
-    <label for="item">Menüwahl:</label>
-    <select name="item" id="itemSelect"></select><br><br>
+  <div class="menu-section">
+    <h2>🍽️ Speisen</h2>
+    <div id="food-menu"></div>
+  </div>
 
-    <button type="submit">Bestellen</button>
-  </form>
-  <p id="msg"></p>
+  <div class="menu-section">
+    <h2>🥤 Getränke</h2>
+    <div id="drink-menu"></div>
+  </div>
 
-  <script>
-    async function loadMenu() {
-      const res = await fetch('/menu.json');
-      const menu = await res.json();
-      const select = document.getElementById('itemSelect');
-      menu.forEach(m => {
-        const option = document.createElement('option');
-        option.value = JSON.stringify(m);
-        option.textContent = `${m.name} – ${m.price} CHF`;
-        select.appendChild(option);
-      });
-    }
+  <label for="table">Tischnummer:</label>
+  <input type="text" id="table" placeholder="z. B. 5">
 
-    document.getElementById('orderForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const table = e.target.table.value;
-      const item = JSON.parse(e.target.item.value);
-      await fetch('/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ table, item })
-      });
-      document.getElementById('msg').textContent = 'Bestellung gesendet!';
-    });
+  <p id="total-price">Gesamt: CHF 0.00</p>
+  <button onclick="submitOrder()">Jetzt bestellen</button>
 
-    loadMenu();
-  </script>
+  <div id="status" class="status-box"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
-<label for="table">Tischnummer:</label>
-<input type="number" id="table" name="table" required>
