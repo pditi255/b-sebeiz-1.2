@@ -1,66 +1,77 @@
 body {
-  font-family: sans-serif;
-  padding: 20px;
-}
-
-.menu-section {
-  margin-bottom: 20px;
-}
-
-.menu-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-input[type="number"] {
-  width: 50px;
-}
-
-.status-box {
-  margin-top: 20px;
-  font-weight: bold;
-}
-body {
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   margin: 20px;
-  background-color: #f8f8f8;
-}
-
-.menu-item {
-  margin-bottom: 10px;
-}
-
-input[type="number"] {
-  width: 50px;
-  margin-left: 10px;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 15px;
-  font-size: 16px;
-}
-
-.status-line {
-  margin-top: 15px;
-  font-weight: bold;
-}
-
-.status-line span {
-  padding: 5px 10px;
-  border-radius: 5px;
-  margin-right: 8px;
-  background-color: lightgray;
+  background-color: #f9f9f9;
   color: #333;
 }
 
-.status-line .active {
-  background-color: orange;
-  color: white;
+h1, h2, h3 {
+  color: #005a87;
 }
 
-.status-line .done {
-  background-color: green;
-  color: white;
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+  padding: 5px;
+  margin: 5px;
+  font-size: 16px;
+}
+
+#orderList {
+  margin-top: 20px;
+}
+
+.order-entry {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.order-entry.bestellt {
+  border-left: 5px solid blue;
+}
+
+.order-entry.bezahlt {
+  border-left: 5px solid orange;
+}
+
+.order-entry.in_bearbeitung {
+  border-left: 5px solid #ffcc00;
+}
+
+.order-entry.abholbereit {
+  border-left: 5px solid green;
+}
+
+.order-entry.abgeschlossen {
+  border-left: 5px solid gray;
+}
+
+.menu-editor-item {
+  margin-bottom: 8px;
+}
+
+.menu-editor-item input {
+  width: 150px;
+  margin-right: 10px;
+}
+
+#menuCounts {
+  background-color: #eef;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.status-label {
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 10px;
 }
