@@ -1,115 +1,67 @@
-let orders = [];
-let menu = {};
-let mode = 'kueche';
-
 async function loadOrders() {
-  const res = await fetch('/orders');
-  orders = await res.json();
-  renderOrders();
-  renderSummary();
-}
+  const res = await fetch("/orders");
+  const data = await res.json();
 
-async function loadMenu() {
-  const res = await fetch('/menu.json');
-  menu = await res.json();
-  renderMenuEdit();
-}
-
-function renderOrders() {
-  const list = document.getElementById('order-list');
-  list.innerHTML = '';
-
-  // Älteste zuerst
-  orders
-    .filter(o => o.status !== 'abgeschlossen')
-    .sort((a, b) => new Date(a.time) - new Date(b.time))
-    .forEach(order => {
-      const div = document.createElement('div');
-      div.className = 'order-block';
-
-      const statusClass = `status ${order.status.replace(/\s/g, '')}`;
-
-      div.innerHTML = `
-        <strong>Tisch: ${order.tisch || '—'}</strong><br>
-        ${order.items.map(i => `${i.menge}x ${i.name}`).join('<br>')}
-        <br><span class="${statusClass}">${order.status}</span>
-        <br>
-        <button onclick="updateStatus('${order.id}', 'bezahlt')">Bezahlt</button>
-        <button onclick="updateStatus('${order.id}', 'inBearbeitung')">In Bearbeitung</button>
-        <button onclick="updateStatus('${order.id}', 'abholbereit')">Abholbereit</button>
-        <button onclick="updateStatus('${order.id}', 'abgeschlossen')">✓ Abgeschlossen</button>
-      `;
-      list.appendChild(div);
+  const grouped = {};
+  const summary = {};
+  data.forEach(order => {
+    if (!grouped[order.table]) grouped[order.table] = [];
+    grouped[order.table].push(order);
+    order.items.forEach(item => {
+      summary[item] = (summary[item] || 0) + 1;
     });
-}
+  });
 
-function renderSummary() {
-  const map = new Map();
-  orders
-    .filter(o => o.status !== 'abgeschlossen')
-    .forEach(order => {
-      order.items.forEach(item => {
-        const key = item.name;
-        map.set(key, (map.get(key) || 0) + item.menge);
-      });
-    });
+  const summaryDiv = document.getElementById("summary");
+  summaryDiv.innerHTML = "<h3>Offene Artikel</h3>";
+  Object.keys(summary).forEach(name => {
+    summaryDiv.innerHTML += `<div>${name}: ${summary[name]}</div>`;
+  });
 
-  const div = document.getElementById('summary');
-  div.innerHTML = '';
-  map.forEach((count, name) => {
-    const p = document.createElement('p');
-    p.textContent = `${name}: ${count}x`;
-    div.appendChild(p);
+  const ordersDiv = document.getElementById("orders");
+  ordersDiv.innerHTML = "<h3>Offene Bestellungen</h3>";
+  Object.entries(grouped).forEach(([table, orders]) => {
+    const el = document.createElement("div");
+    const allItems = orders.flatMap(o => o.items).join(", ");
+    el.innerHTML = `
+      <strong>Tisch ${table}</strong><br>
+      ${allItems}<br>
+      <button onclick="updateStatus(${table}, 'Bezahlt')">Bezahlt</button>
+      <button onclick="updateStatus(${table}, 'In Bearbeitung')">In Bearbeitung</button>
+      <button onclick="updateStatus(${table}, 'Abholbereit')">Abholbereit</button>
+      <button onclick="clearTable(${table})">Abgeschlossen</button><hr>`;
+    ordersDiv.appendChild(el);
   });
 }
 
-async function updateStatus(id, newStatus) {
-  await fetch('/status', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, status: newStatus })
+async function updateStatus(table, status) {
+  await fetch(`/status/${table}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status })
   });
-  loadOrders();
 }
 
-function toggleMenu() {
-  const panel = document.getElementById('menu-settings');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-  loadMenu();
+async function clearTable(table) {
+  await fetch(`/clear/${table}`, { method: "POST" });
 }
 
-function renderMenuEdit() {
-  const container = document.getElementById('menu-edit-container');
-  container.innerHTML = '';
+async function toggleSettings() {
+  const box = document.getElementById("settings");
+  box.style.display = box.style.display === "none" ? "block" : "none";
 
-  const addRow = (item, type, index) => {
-    const row = document.createElement('div');
-    row.className = 'menu-item';
-    row.innerHTML = `
-      <input type="text" value="${item.name}" onchange="menu['${type}'][${index}].name = this.value">
-      <input type="number" value="${item.preis}" onchange="menu['${type}'][${index}].preis = parseFloat(this.value)">
-    `;
-    container.appendChild(row);
-  };
-
-  ['speisen', 'getraenke'].forEach(type => {
-    const title = document.createElement('h3');
-    title.textContent = type === 'speisen' ? 'Speisen' : 'Getränke';
-    container.appendChild(title);
-
-    menu[type].forEach((item, index) => addRow(item, type, index));
-  });
+  const res = await fetch("/menu.json");
+  const data = await res.text();
+  document.getElementById("menuEditor").value = data;
 }
 
 async function saveMenu() {
-  await fetch('/menu/save', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(menu)
+  const content = document.getElementById("menuEditor").value;
+  await fetch("/menu", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: content
   });
-  alert('Menü gespeichert');
-  loadOrders();
 }
 
-loadOrders();
 setInterval(loadOrders, 5000);
