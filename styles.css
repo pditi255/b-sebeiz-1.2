@@ -1,14 +1,23 @@
 body {
   font-family: sans-serif;
-  margin: 20px;
-  background: #f5f5f5;
+  padding: 20px;
 }
-h1 {
-  color: #333;
-}
-form {
+
+.menu-section {
   margin-bottom: 20px;
 }
-textarea {
-  font-family: monospace;
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+input[type="number"] {
+  width: 50px;
+}
+
+.status-box {
+  margin-top: 20px;
+  font-weight: bold;
 }
