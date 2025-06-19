@@ -4,16 +4,15 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const ordersFile = path.join(__dirname, 'orders.json');
+
 app.use(express.json());
 app.use(express.static(__dirname));
-
-const ordersFile = path.join(__dirname, 'orders.json');
-const menuFile = path.join(__dirname, 'menu.json');
 
 // Bestellung speichern
 app.post('/order', (req, res) => {
   const { item, table } = req.body;
-  if (!item || !table) return res.status(400).send('Fehlende Daten');
+  if (!item || !table) return res.status(400).send('Ungültige Bestellung');
 
   let orders = [];
   if (fs.existsSync(ordersFile)) {
@@ -22,31 +21,43 @@ app.post('/order', (req, res) => {
 
   orders.push({
     item,
+    time: new Date().toISOString(),
     table,
-    time: new Date().toISOString()
+    status: 'offen'
   });
 
   fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
 });
 
-// Bestellungen abrufen
+// Bestellung abrufen
 app.get('/orders', (req, res) => {
   if (!fs.existsSync(ordersFile)) return res.json([]);
   const orders = JSON.parse(fs.readFileSync(ordersFile));
   res.json(orders);
 });
 
-// Menü abrufen
-app.get('/menu.json', (req, res) => {
-  if (!fs.existsSync(menuFile)) return res.json([]);
-  const menu = JSON.parse(fs.readFileSync(menuFile));
-  res.json(menu);
+// Status ändern
+app.post('/status', (req, res) => {
+  const { index, status } = req.body;
+  if (typeof index !== 'number' || !status) return res.sendStatus(400);
+
+  let orders = JSON.parse(fs.readFileSync(ordersFile));
+  if (!orders[index]) return res.sendStatus(404);
+
+  orders[index].status = status;
+  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
+  res.sendStatus(200);
 });
 
-// Menü speichern
-app.post('/menu', (req, res) => {
-  fs.writeFileSync(menuFile, JSON.stringify(req.body, null, 2));
+// Abrechnen (löschen)
+app.post('/clear', (req, res) => {
+  const { table } = req.body;
+  if (typeof table !== 'number') return res.sendStatus(400);
+
+  let orders = JSON.parse(fs.readFileSync(ordersFile));
+  orders = orders.filter(o => o.table !== table);
+  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
 });
 
