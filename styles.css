@@ -21,3 +21,46 @@ input[type="number"] {
   margin-top: 20px;
   font-weight: bold;
 }
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  background-color: #f8f8f8;
+}
+
+.menu-item {
+  margin-bottom: 10px;
+}
+
+input[type="number"] {
+  width: 50px;
+  margin-left: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 15px;
+  font-size: 16px;
+}
+
+.status-line {
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.status-line span {
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-right: 8px;
+  background-color: lightgray;
+  color: #333;
+}
+
+.status-line .active {
+  background-color: orange;
+  color: white;
+}
+
+.status-line .done {
+  background-color: green;
+  color: white;
+}
