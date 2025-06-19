@@ -60,3 +60,24 @@ app.post("/menu", (req, res) => {
 app.listen(port, () => {
   console.log(`Server läuft auf Port ${port}`);
 });
+// Neuen Status setzen (Küche)
+app.post('/status', (req, res) => {
+  const { table, status } = req.body;
+  if (!fs.existsSync(ordersFile)) return res.status(404).send('Keine Bestellung gefunden');
+
+  let orders = JSON.parse(fs.readFileSync(ordersFile));
+  orders = orders.map(order =>
+    order.table === table ? { ...order, status } : order
+  );
+  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
+  res.sendStatus(200);
+});
+
+// Status für Tisch abrufen (Gast)
+app.get('/status/:table', (req, res) => {
+  if (!fs.existsSync(ordersFile)) return res.json({ status: 'Keine Bestellung' });
+  const orders = JSON.parse(fs.readFileSync(ordersFile));
+  const table = parseInt(req.params.table);
+  const order = orders.reverse().find(order => order.table === table);
+  res.json({ status: order?.status || 'Keine Bestellung' });
+});
