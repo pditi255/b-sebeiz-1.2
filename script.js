@@ -4,7 +4,8 @@ let menu = [];
 const menuContainer = document.getElementById("menuContainer");
 const totalDisplay = document.getElementById("total");
 const statusDisplay = document.getElementById("status");
-const tableSelect = document.getElementById("table");
+const tableInput = document.getElementById("table");
+const orderButton = document.getElementById("orderButton");
 
 async function loadMenu() {
   const res = await fetch("/menu.json");
@@ -36,7 +37,7 @@ function updateCart() {
   const inputs = document.querySelectorAll("input[type='number']");
   inputs.forEach(input => {
     const count = parseInt(input.value);
-    if (count > 0) {
+    if (!isNaN(count) && count > 0) {
       const name = input.dataset.name;
       const price = parseFloat(input.dataset.price);
       for (let i = 0; i < count; i++) {
@@ -49,21 +50,37 @@ function updateCart() {
 }
 
 async function submitOrder() {
-  const table = parseInt(tableSelect.value);
+  const table = tableInput.value.trim();
+  if (!table || isNaN(table)) {
+    alert("Bitte geben Sie eine gültige Tischnummer ein.");
+    return;
+  }
+
+  if (cart.length === 0) {
+    alert("Bitte wählen Sie mindestens ein Produkt aus.");
+    return;
+  }
+
   await fetch("/order", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ table, items: cart })
+    body: JSON.stringify({ table: parseInt(table), items: cart })
   });
+
   statusDisplay.textContent = "Bestellt";
+  cart = [];
+  updateCart();
 }
 
 async function updateStatus() {
-  const table = tableSelect.value;
+  const table = tableInput.value.trim();
+  if (!table || isNaN(table)) return;
   const res = await fetch(`/status/${table}`);
   const data = await res.json();
   statusDisplay.textContent = data.status || "-";
 }
+
+orderButton.addEventListener("click", submitOrder);
 
 loadMenu();
 setInterval(updateStatus, 4000);
