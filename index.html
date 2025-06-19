@@ -8,38 +8,37 @@
   <h1>Gästeansicht</h1>
 
   <form id="orderForm">
-    <label>Menüwahl:</label>
-    <select name="item" id="itemSelect"></select>
+    <label for="menu">Menüwahl:</label>
+    <select id="menu" name="item">
+      <option value="Gemischter Salat|8">Gemischter Salat – 8 CHF</option>
+      <option value="Schnitzel mit Pommes|19">Schnitzel mit Pommes – 19 CHF</option>
+      <option value="Bratwurst mit Pommes|14">Bratwurst mit Pommes – 14 CHF</option>
+      <option value="Vegi-Teller|13">Vegi-Teller – 13 CHF</option>
+      <option value="Schokopudding|5">Schokopudding – 5 CHF</option>
+      <option value="Kleines Bier|4">Kleines Bier – 4 CHF</option>
+      <option value="Mineral|3">Mineral – 3 CHF</option>
+      <option value="Cola|5">Cola – 5 CHF</option>
+      <option value="Weisswein|7">Weisswein – 7 CHF</option>
+    </select>
     <button type="submit">Bestellen</button>
   </form>
 
   <p id="msg"></p>
 
   <script>
-    async function loadMenu() {
-      const res = await fetch('menu.json');
-      const menu = await res.json();
-      const select = document.getElementById('itemSelect');
-      menu.forEach(entry => {
-        const option = document.createElement('option');
-        option.value = entry.name;
-        option.textContent = `${entry.name} – ${entry.price} CHF`;
-        select.appendChild(option);
-      });
-    }
-
-    document.getElementById('orderForm').addEventListener('submit', async e => {
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const item = document.getElementById('itemSelect').value;
+      const selected = document.getElementById('menu').value;
+      const [item, price] = selected.split('|');
+
       const res = await fetch('/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item })
+        body: JSON.stringify({ item, price, status: 'offen' })
       });
+
       document.getElementById('msg').textContent = res.ok ? 'Bestellung gesendet!' : 'Fehler!';
     });
-
-    loadMenu();
   </script>
 </body>
 </html>
