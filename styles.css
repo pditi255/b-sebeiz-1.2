@@ -1,78 +1,75 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
   background: #f9f9f9;
   margin: 0;
-  padding: 1em;
+  padding: 20px;
 }
 
-h1 {
-  text-align: center;
-  color: #222;
-}
-
-h2 {
-  margin-top: 1.5em;
+h1, h2 {
   color: #333;
 }
 
-#menu-container {
-  max-width: 700px;
-  margin: 0 auto;
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 4px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+td, th {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+}
+
+.status.bestellt { background: gray; }
+.status.bezahlt { background: green; }
+.status.inBearbeitung { background: orange; }
+.status.abholbereit { background: blue; }
+
+input[type="number"] {
+  width: 50px;
 }
 
 .menu-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.5em;
-  background: #fff;
-  margin-bottom: 0.3em;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-input[type="number"] {
-  width: 60px;
-  text-align: center;
-  font-size: 1em;
+#menu-settings input[type="text"] {
+  width: 60%;
 }
 
-button {
-  background: #28a745;
-  color: white;
-  padding: 0.8em 1.5em;
-  border: none;
-  border-radius: 5px;
-  font-size: 1em;
-  cursor: pointer;
-  margin-top: 1em;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-button:hover {
-  background: #218838;
-}
-
-#status-area {
-  margin-top: 2em;
-  font-size: 1.2em;
-  text-align: center;
-  font-weight: bold;
-}
-
-#total-price {
-  margin-top: 1em;
-  text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-input#table-number {
-  display: block;
-  margin: 1em auto;
-  padding: 0.5em;
-  font-size: 1em;
-  width: 200px;
-  text-align: center;
+#menu-settings input[type="number"] {
+  width: 80px;
 }
