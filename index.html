@@ -2,29 +2,23 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Willkommen beim Fest!</title>
+  <title>Willkommen beim Fest</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Willkommen beim Fest!</h1>
+  <h1>Willkommen beim Fest</h1>
+  <p>Bitte geben Sie Ihre Tischnummer ein:</p>
+  <input id="table" placeholder="z. B. 5">
+  
+  <div id="menu-container"></div>
 
-  <div class="menu-section">
-    <h2>🍽️ Speisen</h2>
-    <div id="food-menu"></div>
-  </div>
+  <button onclick="submitOrder()">Bestellung abschicken</button>
+  
+  <h2>🧾 Ihre Bestellung</h2>
+  <div id="summary"></div>
 
-  <div class="menu-section">
-    <h2>🥤 Getränke</h2>
-    <div id="drink-menu"></div>
-  </div>
-
-  <label for="table">Tischnummer:</label>
-  <input type="text" id="table" placeholder="z. B. 5">
-
-  <p id="total-price">Gesamt: CHF 0.00</p>
-  <button onclick="submitOrder()">Jetzt bestellen</button>
-
-  <div id="status" class="status-box"></div>
+  <h2>Status</h2>
+  <div id="statusDisplay" class="status-line"></div>
 
   <script src="script.js"></script>
 </body>
