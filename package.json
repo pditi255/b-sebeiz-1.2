@@ -1,0 +1,11 @@
+{
+  "name": "baesebeiz-v1.2",
+  "version": "1.2.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
