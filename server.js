@@ -33,3 +33,15 @@ app.get('/orders', (req, res) => {
 app.listen(port, () => {
   console.log(`Server läuft auf Port ${port}`);
 });
+app.post('/update-status', (req, res) => {
+  const { index, status } = req.body;
+  if (!fs.existsSync(ordersFile)) return res.sendStatus(404);
+  const orders = JSON.parse(fs.readFileSync(ordersFile));
+  if (orders[index]) {
+    orders[index].status = status;
+    fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(400);
+  }
+});
