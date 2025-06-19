@@ -1,117 +1,66 @@
-let menu = {};
-let order = [];
-let tableNumber = '';
-let orderId = null;
-let statusInterval = null;
+let menu = [];
+let cart = [];
+const tableSelect = document.getElementById("table");
+const menuContainer = document.getElementById("menuContainer");
+const totalDisplay = document.getElementById("total");
+const statusDisplay = document.getElementById("status");
 
-async function fetchMenu() {
-  const res = await fetch('menu.json');
+async function loadMenu() {
+  const res = await fetch("/menu.json");
   menu = await res.json();
-  renderMenu();
-}
 
-function renderMenu() {
-  const container = document.getElementById('menu-container');
-  container.innerHTML = '';
+  const food = menu.filter(item => item.type === "essen");
+  const drinks = menu.filter(item => item.type === "getränk");
 
-  const makeSection = (title, items, type) => {
-    const section = document.createElement('div');
-    section.innerHTML = `<h2>${title}</h2>`;
-    items.forEach((item, idx) => {
-      const div = document.createElement('div');
-      div.className = 'menu-item';
-
-      div.innerHTML = `
-        <span>${item.name} (${item.price.toFixed(2)} CHF)</span>
-        <input type="number" min="0" value="0" onchange="updateOrder('${type}', ${idx}, this.value)">
-      `;
-
-      section.appendChild(div);
-    });
-    container.appendChild(section);
-  };
-
-  makeSection("Speisen", menu.speisen, "speisen");
-  makeSection("Getränke", menu.getraenke, "getraenke");
-}
-
-function updateOrder(type, index, value) {
-  const itemList = menu[type];
-  const existing = order.find(o => o.name === itemList[index].name);
-  if (existing) {
-    existing.qty = parseInt(value);
-    if (existing.qty === 0) {
-      order = order.filter(o => o.name !== existing.name);
-    }
-  } else {
-    order.push({ name: itemList[index].name, price: itemList[index].price, qty: parseInt(value) });
-  }
-  updateTotal();
-}
-
-function updateTotal() {
-  let total = 0;
-  order.forEach(o => {
-    total += o.price * o.qty;
+  menuContainer.innerHTML = "<h3>Menü</h3>";
+  food.forEach(item => {
+    const el = document.createElement("div");
+    el.innerHTML = `${item.name} – ${item.price} CHF 
+      <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">`;
+    menuContainer.appendChild(el);
   });
-  document.getElementById('total').innerText = total.toFixed(2);
+
+  menuContainer.innerHTML += "<h3>Getränke</h3>";
+  drinks.forEach(item => {
+    const el = document.createElement("div");
+    el.innerHTML = `${item.name} – ${item.price} CHF 
+      <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">`;
+    menuContainer.appendChild(el);
+  });
+}
+
+function updateCart() {
+  const inputs = menuContainer.querySelectorAll("input[type='number']");
+  cart = [];
+  let sum = 0;
+  inputs.forEach(input => {
+    const count = parseInt(input.value);
+    if (count > 0) {
+      const name = input.dataset.name;
+      const price = parseFloat(input.dataset.price);
+      sum += count * price;
+      for (let i = 0; i < count; i++) cart.push(name);
+    }
+  });
+  totalDisplay.textContent = sum.toFixed(2);
 }
 
 async function submitOrder() {
-  tableNumber = document.getElementById('table-number').value;
-  if (!tableNumber || order.length === 0) {
-    alert("Bitte Tischnummer eingeben und mindestens ein Produkt wählen.");
-    return;
-  }
-
-  const items = [];
-  order.forEach(o => {
-    for (let i = 0; i < o.qty; i++) {
-      items.push(o.name);
-    }
+  const table = parseInt(tableSelect.value);
+  const res = await fetch("/order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ table, items: cart })
   });
-
-  const res = await fetch('/order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ table: tableNumber, items })
-  });
-
-  if (res.ok) {
-    alert("Bestellung gesendet!");
-    fetchLastOrder();
-  } else {
-    alert("Fehler beim Senden.");
-  }
+  document.getElementById("status").textContent = "Bestellt";
 }
 
-async function fetchLastOrder() {
-  const res = await fetch('/orders');
-  const all = await res.json();
-  const latest = all.filter(o => o.table == tableNumber).sort((a, b) => b.time.localeCompare(a.time))[0];
-  orderId = latest.id;
-  showStatus(latest.status);
-  if (statusInterval) clearInterval(statusInterval);
-  statusInterval = setInterval(() => pollStatus(orderId), 5000);
+async function updateStatus() {
+  const table = parseInt(tableSelect.value);
+  const res = await fetch("/status/" + table);
+  const data = await res.json();
+  statusDisplay.textContent = data.status || "-";
 }
 
-async function pollStatus(id) {
-  const res = await fetch('/orders');
-  const all = await res.json();
-  const match = all.find(o => o.id === id);
-  if (match) showStatus(match.status);
-}
-
-function showStatus(status) {
-  const map = {
-    bestellt: '🟦 Bestellung eingegangen',
-    bezahlt: '🟩 Bezahlt',
-    'in bearbeitung': '🟧 In Bearbeitung',
-    abholbereit: '🟨 Abholbereit',
-    abgeschlossen: '✅ Abgeschlossen'
-  };
-  document.getElementById('status-area').innerText = `Status: ${map[status] || status}`;
-}
-
-// Start
-fetchMenu();
+loadMenu();
+setInterval(updateStatus, 4000);
