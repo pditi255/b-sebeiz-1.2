@@ -6,7 +6,23 @@
 </head>
 <body>
   <h1>Küchenansicht</h1>
-  <p>Hier erscheinen die neuen Bestellungen live.</p>
-  <script src="script.js"></script>
+  <div id="orders"></div>
+
+  <script>
+    async function loadOrders() {
+      const res = await fetch('/orders');
+      const data = await res.json();
+      const container = document.getElementById('orders');
+      container.innerHTML = '';
+      data.slice().reverse().forEach(order => {
+        const el = document.createElement('p');
+        el.textContent = `${order.item} - ${new Date(order.time).toLocaleTimeString()}`;
+        container.appendChild(el);
+      });
+    }
+
+    loadOrders();
+    setInterval(loadOrders, 5000);
+  </script>
 </body>
 </html>
