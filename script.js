@@ -1,1 +1,6 @@
-// Hier kommt JS-Logik für Live-Status und Klingel
+const table = document.getElementById('table').value;
+await fetch('/order', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ item: punkt, table: parseInt(table) })
+});
