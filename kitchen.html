@@ -7,18 +7,43 @@
 <body>
   <h1>Küchenansicht</h1>
   <div id="orders"></div>
+  <h2>Gesamt: <span id="total">0 CHF</span></h2>
 
   <script>
     async function loadOrders() {
       const res = await fetch('/orders');
       const data = await res.json();
       const container = document.getElementById('orders');
+      const totalDisplay = document.getElementById('total');
       container.innerHTML = '';
-      data.slice().reverse().forEach(order => {
-        const el = document.createElement('p');
-        el.textContent = `${order.item} - ${new Date(order.time).toLocaleTimeString()}`;
+
+      let total = 0;
+
+      data.slice().reverse().forEach((order, i) => {
+        const price = parseFloat(order.price || 0);
+        total += price;
+
+        const el = document.createElement('div');
+        el.innerHTML = `
+          <p>
+            <strong>${order.item}</strong> – ${price} CHF – 
+            ${new Date(order.time).toLocaleTimeString()}
+            <br>Status: <strong>${order.status || 'offen'}</strong>
+            <button onclick="updateStatus(${data.length - 1 - i}, 'fertig')">Fertig</button>
+          </p><hr>`;
         container.appendChild(el);
       });
+
+      totalDisplay.textContent = total.toFixed(2) + ' CHF';
+    }
+
+    async function updateStatus(index, status) {
+      await fetch('/update-status', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ index, status })
+      });
+      loadOrders();
     }
 
     loadOrders();
@@ -26,33 +51,3 @@
   </script>
 </body>
 </html>
-<script>
-  async function loadOrders() {
-    const res = await fetch('/orders');
-    const data = await res.json();
-    const container = document.getElementById('orders');
-    container.innerHTML = '';
-    data.slice().reverse().forEach((order, i) => {
-      const el = document.createElement('div');
-      el.innerHTML = `
-        <p>
-          ${order.item} – ${new Date(order.time).toLocaleTimeString()}
-          <strong>[${order.status || 'offen'}]</strong>
-          <button onclick="updateStatus(${data.length - 1 - i}, 'fertig')">Fertig</button>
-        </p>`;
-      container.appendChild(el);
-    });
-  }
-
-  async function updateStatus(index, status) {
-    await fetch('/update-status', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ index, status })
-    });
-    loadOrders(); // neu laden nach Status-Update
-  }
-
-  loadOrders();
-  setInterval(loadOrders, 5000);
-</script>
