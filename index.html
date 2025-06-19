@@ -2,24 +2,111 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Willkommen beim Fest!</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
     <h1>Willkommen beim Fest!</h1>
-    <p>Bitte geben Sie Ihre Tischnummer ein:</p>
-    <input type="number" id="table-number" placeholder="z. B. 5" />
+    <label for="table">Bitte geben Sie Ihre Tischnummer ein:</label>
+    <select id="table">
+      <option value="">-- Bitte wählen --</option>
+      ${[...Array(30)].map((_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}
+    </select>
 
-    <div id="menu-container"></div>
+    <div id="menuContainer"></div>
 
-    <h3>Gesamtpreis: <span id="total">0.00</span> CHF</h3>
+    <h2>Gesamtpreis: <span id="totalPrice">0.00</span> CHF</h2>
     <button onclick="submitOrder()">Bestellung abschicken</button>
-
-    <div id="status-area" style="margin-top: 30px;"></div>
+    <p id="statusMessage"></p>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    let menu = [];
+    const quantities = {};
+
+    async function loadMenu() {
+      const res = await fetch('menu.json');
+      menu = await res.json();
+      renderMenu();
+    }
+
+    function renderMenu() {
+      const container = document.getElementById('menuContainer');
+      container.innerHTML = '';
+
+      const speisen = menu.filter(m => m.category !== 'Getränk');
+      const getraenke = menu.filter(m => m.category === 'Getränk');
+
+      container.innerHTML += '<h3>Speisen</h3>';
+      speisen.forEach((item, idx) => {
+        container.innerHTML += `
+          <div>
+            ${item.name} – ${item.price} CHF
+            <input type="number" min="0" value="0" id="item-${idx}" onchange="updateQuantity(${idx}, ${item.price})">
+          </div>`;
+        quantities[idx] = 0;
+      });
+
+      container.innerHTML += '<h3>Getränke</h3>';
+      getraenke.forEach((item, idx) => {
+        const gIdx = idx + speisen.length;
+        container.innerHTML += `
+          <div>
+            ${item.name} – ${item.price} CHF
+            <input type="number" min="0" value="0" id="item-${gIdx}" onchange="updateQuantity(${gIdx}, ${item.price})">
+          </div>`;
+        quantities[gIdx] = 0;
+      });
+    }
+
+    function updateQuantity(index, price) {
+      const input = document.getElementById(`item-${index}`);
+      quantities[index] = parseInt(input.value) || 0;
+      updateTotalPrice();
+    }
+
+    function updateTotalPrice() {
+      let total = 0;
+      Object.keys(quantities).forEach(i => {
+        total += (menu[i].price * quantities[i]);
+      });
+      document.getElementById('totalPrice').innerText = total.toFixed(2);
+    }
+
+    async function submitOrder() {
+      const table = document.getElementById('table').value;
+      if (!table) {
+        alert('Bitte Tischnummer wählen.');
+        return;
+      }
+
+      const orders = [];
+      Object.keys(quantities).forEach(i => {
+        if (quantities[i] > 0) {
+          orders.push({ item: menu[i].name, quantity: quantities[i], price: menu[i].price });
+        }
+      });
+
+      if (orders.length === 0) {
+        alert('Bitte mindestens ein Gericht wählen.');
+        return;
+      }
+
+      const res = await fetch('/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table, items: orders })
+      });
+
+      if (res.ok) {
+        document.getElementById('statusMessage').innerText = 'Status: Bestellt ✅';
+      } else {
+        document.getElementById('statusMessage').innerText = 'Fehler beim Bestellen.';
+      }
+    }
+
+    loadMenu();
+  </script>
 </body>
 </html>
