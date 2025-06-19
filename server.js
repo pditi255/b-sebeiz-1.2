@@ -10,18 +10,25 @@ app.use(express.static(__dirname));
 const ordersFile = path.join(__dirname, 'orders.json');
 const menuFile = path.join(__dirname, 'menu.json');
 
-// Neue Bestellung empfangen
+// Neue Bestellung speichern
 app.post('/order', (req, res) => {
   const { table, items } = req.body;
-  if (!table || !items || items.length === 0) return res.status(400).send('Fehlende Daten');
+  if (!table || !items || !Array.isArray(items)) {
+    return res.status(400).send('Ungültige Bestellung');
+  }
 
-  const orders = fs.existsSync(ordersFile) ? JSON.parse(fs.readFileSync(ordersFile)) : [];
+  const orders = fs.existsSync(ordersFile)
+    ? JSON.parse(fs.readFileSync(ordersFile))
+    : [];
+
   const newOrder = {
+    id: Date.now().toString(),
     table,
     items,
-    status: 'Bestellt',
-    timestamp: Date.now()
+    status: 'bestellt',
+    time: new Date().toISOString()
   };
+
   orders.push(newOrder);
   fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
@@ -34,55 +41,40 @@ app.get('/orders', (req, res) => {
   res.json(orders);
 });
 
-// Bestellung aktualisieren (Status ändern)
-app.post('/update', (req, res) => {
-  const { index, status } = req.body;
-  if (index === undefined || !status) return res.status(400).send('Fehlende Daten');
+// Status aktualisieren
+app.post('/status/:id', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
 
-  const orders = JSON.parse(fs.readFileSync(ordersFile));
-  if (!orders[index]) return res.status(404).send('Nicht gefunden');
+  if (!fs.existsSync(ordersFile)) return res.sendStatus(404);
+  let orders = JSON.parse(fs.readFileSync(ordersFile));
+  const order = orders.find(o => o.id === id);
+  if (!order) return res.sendStatus(404);
 
-  orders[index].status = status;
+  order.status = status;
   fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
 });
 
-// Bestellung löschen (z.B. abgeschlossen)
-app.post('/delete', (req, res) => {
-  const { index } = req.body;
-  if (index === undefined) return res.status(400).send('Index fehlt');
-
-  const orders = JSON.parse(fs.readFileSync(ordersFile));
-  orders.splice(index, 1);
-  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-  res.sendStatus(200);
-});
-
-// Menü abrufen
+// Menü anzeigen
 app.get('/menu.json', (req, res) => {
-  const menu = fs.existsSync(menuFile) ? JSON.parse(fs.readFileSync(menuFile)) : [];
+  if (!fs.existsSync(menuFile)) {
+    return res.status(404).send('Menü nicht gefunden');
+  }
+  const menu = JSON.parse(fs.readFileSync(menuFile));
   res.json(menu);
 });
 
-// Menü speichern (Küche -> Änderungen)
-app.post('/menu', (req, res) => {
-  const menu = req.body;
-  fs.writeFileSync(menuFile, JSON.stringify(menu, null, 2));
+// Menü aktualisieren
+app.post('/menu.json', (req, res) => {
+  const newMenu = req.body;
+  if (!newMenu || !newMenu.speisen || !newMenu.getraenke) {
+    return res.status(400).send('Ungültiges Menüformat');
+  }
+  fs.writeFileSync(menuFile, JSON.stringify(newMenu, null, 2));
   res.sendStatus(200);
 });
 
-// Mengenstatistik liefern (für Küche)
-app.get('/overview', (req, res) => {
-  const orders = fs.existsSync(ordersFile) ? JSON.parse(fs.readFileSync(ordersFile)) : [];
-  const summary = {};
-  orders.forEach(order => {
-    order.items.forEach(item => {
-      summary[item] = (summary[item] || 0) + 1;
-    });
-  });
-  res.json(summary);
-});
-
 app.listen(port, () => {
-  console.log(`🍽 Server läuft auf Port ${port}`);
+  console.log(`🍽️ Server läuft auf Port ${port}`);
 });
