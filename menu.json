@@ -1,11 +1,9 @@
 [
-  { "name": "Gemischter Salat", "price": 8 },
-  { "name": "Schnitzel mit Pommes", "price": 19 },
-  { "name": "Bratwurst mit Pommes", "price": 14 },
-  { "name": "Vegi-Teller", "price": 13 },
-  { "name": "Schokopudding", "price": 5 },
-  { "name": "Kleines Bier", "price": 4 },
-  { "name": "Mineral", "price": 3 },
-  { "name": "Cola", "price": 5 },
-  { "name": "Weisswein", "price": 7 }
+  { "name": "Gemischter Salat", "price": 8, "category": "food" },
+  { "name": "Schnitzel mit Pommes", "price": 19, "category": "food" },
+  { "name": "Bratwurst mit Pommes", "price": 14, "category": "food" },
+  { "name": "Vanilleglace", "price": 5, "category": "food" },
+  { "name": "Schokopudding", "price": 5, "category": "food" },
+  { "name": "Mineral", "price": 3, "category": "drink" },
+  { "name": "Bier klein", "price": 4, "category": "drink" }
 ]
