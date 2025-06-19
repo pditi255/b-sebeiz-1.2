@@ -12,8 +12,8 @@ const menuFile = path.join(__dirname, 'menu.json');
 
 // Bestellung aufgeben
 app.post('/order', (req, res) => {
-  const { table, items } = req.body;
-  if (!table || !items) return res.status(400).send('Ungültige Bestellung');
+  const { items, table } = req.body;
+  if (!items || !Array.isArray(items)) return res.status(400).send('Keine gültigen Artikel');
 
   let orders = [];
   if (fs.existsSync(ordersFile)) {
@@ -21,46 +21,37 @@ app.post('/order', (req, res) => {
   }
 
   orders.push({
-    table,
     items,
-    time: new Date().toISOString(),
-    status: "Bestellt"
+    table: table || "-",
+    status: "bestellt",
+    time: new Date().toISOString()
   });
 
   fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
 });
 
-// Alle Bestellungen anzeigen
+// Bestellungen laden
 app.get('/orders', (req, res) => {
   if (!fs.existsSync(ordersFile)) return res.json([]);
   const orders = JSON.parse(fs.readFileSync(ordersFile));
   res.json(orders);
 });
 
-// Status fortschalten
-app.post('/update-status/:index', (req, res) => {
-  const index = parseInt(req.params.index);
-  let orders = JSON.parse(fs.readFileSync(ordersFile));
-  const statusSteps = ["Bestellt", "Bezahlt", "In Bearbeitung", "Abholbereit", "Erledigt"];
-  const currentStatus = orders[index].status;
-  const next = statusSteps.indexOf(currentStatus) + 1;
-  if (next < statusSteps.length) {
-    orders[index].status = statusSteps[next];
-    fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-  }
-  res.sendStatus(200);
-});
+// Status aktualisieren
+app.post('/update-status', (req, res) => {
+  const { index, status } = req.body;
+  if (typeof index !== 'number' || !status) return res.status(400).send('Fehlerhafte Anfrage');
 
-// Bestellung als erledigt markieren
-app.post('/mark-done/:index', (req, res) => {
   let orders = JSON.parse(fs.readFileSync(ordersFile));
-  orders[index].status = "Erledigt";
+  if (!orders[index]) return res.status(404).send('Nicht gefunden');
+
+  orders[index].status = status;
   fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
 });
 
-// Menü lesen
+// Menü anzeigen
 app.get('/menu.json', (req, res) => {
   if (!fs.existsSync(menuFile)) return res.json([]);
   const menu = JSON.parse(fs.readFileSync(menuFile));
@@ -68,11 +59,14 @@ app.get('/menu.json', (req, res) => {
 });
 
 // Menü speichern
-app.post('/update-menu', (req, res) => {
-  fs.writeFileSync(menuFile, JSON.stringify(req.body, null, 2));
+app.post('/save-menu', (req, res) => {
+  const newMenu = req.body;
+  if (!Array.isArray(newMenu)) return res.status(400).send('Ungültiges Menü');
+
+  fs.writeFileSync(menuFile, JSON.stringify(newMenu, null, 2));
   res.sendStatus(200);
 });
 
 app.listen(port, () => {
-  console.log(`Server läuft auf Port ${port}`);
+  console.log(`✅ Server läuft auf Port ${port}`);
 });
