@@ -1,32 +1,75 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Küchenansicht</title>
+  <title>Küche</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Küche</h1>
+  <h1>Küchenansicht</h1>
   <div id="orders"></div>
-  <p id="total"></p>
 
   <script>
     async function loadOrders() {
       const res = await fetch('/orders');
       const data = await res.json();
       const container = document.getElementById('orders');
-      const totalEl = document.getElementById('total');
       container.innerHTML = '';
-      let total = 0;
 
-      data.slice().reverse().forEach(order => {
-        const el = document.createElement('p');
-        el.textContent = `Tisch ${order.table}: ${order.item.name} – ${new Date(order.time).toLocaleTimeString()}`;
-        container.appendChild(el);
-        total += Number(order.item.price);
+      const grouped = {};
+      data.forEach((order, index) => {
+        if (!grouped[order.table]) grouped[order.table] = [];
+        grouped[order.table].push({ ...order, index });
       });
 
-      totalEl.textContent = `Gesamtpreis: ${total.toFixed(2)} CHF`;
+      Object.entries(grouped).forEach(([table, orders]) => {
+        const block = document.createElement('div');
+        let sum = 0;
+
+        const title = document.createElement('h2');
+        title.textContent = `Tisch ${table}`;
+        block.appendChild(title);
+
+        orders.forEach(o => {
+          const row = document.createElement('p');
+          row.textContent = `${o.item} – ${new Date(o.time).toLocaleTimeString()} – Status: ${o.status}`;
+
+          const nextStatus = o.status === 'offen' ? 'in Arbeit' : o.status === 'in Arbeit' ? 'serviert' : 'offen';
+          const btn = document.createElement('button');
+          btn.textContent = `→ ${nextStatus}`;
+          btn.onclick = async () => {
+            await fetch('/status', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ index: o.index, status: nextStatus })
+            });
+            loadOrders();
+          };
+
+          row.appendChild(btn);
+          block.appendChild(row);
+
+          const match = o.item.match(/(\d+\.?\d*)\s*CHF?/);
+          if (match) sum += parseFloat(match[1]);
+        });
+
+        const total = document.createElement('p');
+        total.innerHTML = `<strong>Gesamtpreis: ${sum.toFixed(2)} CHF</strong>`;
+        block.appendChild(total);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'Abrechnen';
+        clearBtn.onclick = async () => {
+          await fetch('/clear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ table: parseInt(table) })
+          });
+          loadOrders();
+        };
+
+        block.appendChild(clearBtn);
+        container.appendChild(block);
+      });
     }
 
     loadOrders();
