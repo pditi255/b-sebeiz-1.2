@@ -1,111 +1,26 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Willkommen beim Fest</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Willkommen beim Fest!</h1>
+  <div class="container">
+    <h1>Willkommen beim Fest!</h1>
+    <p>Bitte überprüfe regelmäßig den Status deiner Bestellung. 🍽️</p>
 
-  <label for="tableNumber">Tischnummer:</label>
-  <input type="text" id="tableNumber" placeholder="z.B. 4" required />
+    <form id="orderForm">
+      <div id="menuContainer"></div>
+      <label for="tableNumber">Tischnummer:</label>
+      <input type="text" id="tableNumber" name="tableNumber" required>
+      <br><br>
+      <button type="submit">Bestellung abschließen</button>
+    </form>
 
-  <h2>Menü</h2>
-  <form id="orderForm"></form>
+    <div id="orderStatus" style="margin-top: 30px;"></div>
+  </div>
 
-  <h3>Gesamtpreis: <span id="total">CHF 0.00</span></h3>
-  <button onclick="submitOrder()">Bestellen</button>
-
-  <h2>Status deiner Bestellung</h2>
-  <div id="statusContainer">Noch keine Bestellung</div>
-
-  <script>
-    let currentOrderIndex = null;
-
-    async function loadMenu() {
-      const res = await fetch('/menu.json');
-      const menu = await res.json();
-      const form = document.getElementById('orderForm');
-      form.innerHTML = '';
-      menu.forEach((item, index) => {
-        const label = document.createElement('label');
-        label.innerText = `${item.name} – CHF ${item.price}`;
-        const select = document.createElement('select');
-        select.dataset.name = item.name;
-        select.dataset.price = item.price;
-        for (let i = 0; i <= 10; i++) {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.text = i;
-          select.appendChild(opt);
-        }
-        form.appendChild(label);
-        form.appendChild(select);
-        form.appendChild(document.createElement('br'));
-      });
-    }
-
-    function submitOrder() {
-      const table = document.getElementById('tableNumber').value.trim();
-      if (!table) return alert('Bitte Tischnummer eingeben');
-
-      const selects = document.querySelectorAll('select');
-      const items = [];
-      selects.forEach(sel => {
-        const count = parseInt(sel.value);
-        if (count > 0) {
-          for (let i = 0; i < count; i++) {
-            items.push(sel.dataset.name);
-          }
-        }
-      });
-
-      if (items.length === 0) return alert('Keine Artikel ausgewählt');
-
-      fetch('/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, table })
-      }).then(res => {
-        if (res.ok) {
-          alert('Bestellung gesendet!');
-          currentOrderIndex = null;
-          document.getElementById('statusContainer').innerText = 'Bestellt';
-          document.getElementById('orderForm').reset();
-        }
-      });
-    }
-
-    function updateTotal() {
-      let total = 0;
-      const selects = document.querySelectorAll('select');
-      selects.forEach(sel => {
-        total += parseFloat(sel.dataset.price) * parseInt(sel.value);
-      });
-      document.getElementById('total').innerText = `CHF ${total.toFixed(2)}`;
-    }
-
-    async function pollStatus() {
-      const table = document.getElementById('tableNumber').value.trim();
-      if (!table) return;
-
-      const res = await fetch('/orders');
-      const orders = await res.json();
-      const latest = orders
-        .map((o, idx) => ({ ...o, idx }))
-        .reverse()
-        .find(o => o.table === table);
-      if (latest) {
-        currentOrderIndex = latest.idx;
-        document.getElementById('statusContainer').innerText = `Status: ${latest.status}`;
-      }
-    }
-
-    document.addEventListener('change', updateTotal);
-    setInterval(pollStatus, 5000);
-
-    loadMenu();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
