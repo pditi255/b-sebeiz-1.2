@@ -1,30 +1,22 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Küchenansicht</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Küche</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Küchenansicht</h1>
+  <h1>Küchenansicht</h1>
 
-    <div style="text-align: right;">
-      <button onclick="toggleMenu()">🛠 Menü bearbeiten</button>
-    </div>
+  <button onclick="toggleSettings()">⚙ Menü anpassen</button>
 
-    <div id="menu-settings" style="display:none;">
-      <h2>Menü bearbeiten</h2>
-      <div id="menu-edit-container"></div>
-      <button onclick="saveMenu()">Menü speichern</button>
-    </div>
+  <div id="summary"></div>
+  <div id="orders"></div>
 
-    <h2>Offene Bestellungen</h2>
-    <div id="order-list"></div>
-
-    <h2>Zusammenfassung</h2>
-    <div id="summary"></div>
+  <div id="settings" style="display:none;">
+    <h3>Menü bearbeiten</h3>
+    <textarea id="menuEditor" rows="15" cols="50"></textarea>
+    <button onclick="saveMenu()">Speichern</button>
   </div>
 
   <script src="kitchen.js"></script>
