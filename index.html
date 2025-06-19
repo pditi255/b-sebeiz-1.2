@@ -23,3 +23,16 @@
   <script src="script.js"></script>
 </body>
 </html>
+<p id="statusDisplay">Status: -</p>
+<script>
+async function checkStatus() {
+  const table = document.getElementById('table').value;
+  if (!table) return;
+  const res = await fetch(`/status/${table}`);
+  const data = await res.json();
+  document.getElementById('statusDisplay').textContent = `Status: ${data.status}`;
+}
+
+// alle 5 Sekunden aktualisieren
+setInterval(checkStatus, 5000);
+</script>
