@@ -1,24 +1,74 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Küche</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>Küchenansicht</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Küchenansicht</h1>
+  <div class="container">
+    <h1>Küchenansicht</h1>
 
-  <button onclick="toggleSettings()">⚙ Menü anpassen</button>
+    <div id="menuStats">
+      <h2>Offene Bestellungen pro Menü</h2>
+      <ul id="menuCounts"></ul>
+    </div>
 
-  <div id="summary"></div>
-  <div id="orders"></div>
-
-  <div id="settings" style="display:none;">
-    <h3>Menü bearbeiten</h3>
-    <textarea id="menuEditor" rows="15" cols="50"></textarea>
-    <button onclick="saveMenu()">Speichern</button>
+    <div id="orders">
+      <h2>Offene Bestellungen</h2>
+      <div id="orderList"></div>
+    </div>
   </div>
 
-  <script src="kitchen.js"></script>
+  <script>
+    async function fetchOrders() {
+      const res = await fetch('/orders');
+      const orders = await res.json();
+      updateOrderDisplay(orders);
+      updateMenuCounts(orders);
+    }
+
+    function updateOrderDisplay(orders) {
+      const list = document.getElementById('orderList');
+      list.innerHTML = '';
+      orders.sort((a, b) => new Date(a.time) - new Date(b.time));
+      orders.forEach((order, index) => {
+        const div = document.createElement('div');
+        div.classList.add('order-entry');
+        div.innerHTML = `
+          <strong>Tisch ${order.table}</strong><br>
+          ${order.items.join(', ')}<br>
+          <small>${new Date(order.time).toLocaleTimeString()}</small><br>
+          <button onclick="completeOrder(${index})">Abhaken</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function updateMenuCounts(orders) {
+      const counts = {};
+      orders.forEach(order => {
+        order.items.forEach(item => {
+          counts[item] = (counts[item] || 0) + 1;
+        });
+      });
+
+      const countList = document.getElementById('menuCounts');
+      countList.innerHTML = '';
+      for (const item in counts) {
+        const li = document.createElement('li');
+        li.textContent = `${item}: ${counts[item]}`;
+        countList.appendChild(li);
+      }
+    }
+
+    async function completeOrder(index) {
+      await fetch(`/complete/${index}`, { method: 'POST' });
+      fetchOrders();
+    }
+
+    setInterval(fetchOrders, 4000);
+    fetchOrders();
+  </script>
 </body>
 </html>
