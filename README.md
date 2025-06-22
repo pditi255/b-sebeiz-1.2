@@ -1,14 +1,21 @@
-# B-sebeiz v1.2
+# 📦 b-sobeiz Bestellsystem
 
-Ein digitales Bestellsystem mit Live-Status, Menüpflege und Rapport für die Küche.
+Ein einfaches Bestell- und Küchenansichtssystem für Feste oder Events. Gäste können Speisen und Getränke über eine Weboberfläche bestellen und erhalten einen Live-Status. Die Küche kann Bestellungen einsehen, verwalten und abschließen.
 
-## Funktionen
+---
 
-- Menüpflege über Admin-Ansicht (inkl. Preisänderung)
-- Live-Statusanzeige (alle 5 Sek. aktualisiert)
-- Sortierung nach ältester Bestellung
-- Gruppenansicht in der Küche (z. B. 9× Bratwurst)
-- Klingelton & Vibration bei neuen Bestellungen
-- Gästeansicht mit Info: Selbstbedienung oder Service
-- Rapportseite mit PIN-Schutz (Code: 885700)
-- Mobilfreundlich & responsiv
+## 🚀 Features
+
+- Gästeansicht mit Menüanzeige und Live-Status
+- Mengenwahl (z. B. 3× Bratwurst mit Pommes)
+- Automatische Preisberechnung
+- Live-Statusanzeige für Gäste:
+  - **Bestellt**, **In Bearbeitung**, **Abholbereit**, **Bezahlt**
+- Küche sieht alle Bestellungen nach Tischnummer
+- Offene Bestellungen pro Menü (z. B. 5× „Schnitzel mit Pommes“)
+- Statusänderung und Abschlussfunktion für Küche
+- Menü-Verwaltung über JSON-Datei (`menu.json`)
+
+---
+
+## 📁 Projektstruktur
