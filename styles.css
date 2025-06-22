@@ -1,84 +1,88 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background-color: #f9f9f9;
-  color: #222;
+  font-family: sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+  color: #333;
 }
 
 .container {
   max-width: 900px;
   margin: auto;
-  background: #fff;
-  padding: 20px 30px;
+  background: white;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px rgba(0,0,0,0.1);
 }
 
 h1, h2 {
-  color: #1e3d59;
-  margin-bottom: 15px;
+  text-align: center;
+  color: #222;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
 }
 
 .order-box {
-  border-left: 4px solid #007bff;
-  background: #f0f4f8;
-  padding: 15px 20px;
-  margin: 20px 0;
+  background: #fafafa;
+  border: 2px solid #ddd;
   border-radius: 8px;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.order-box h3 {
+  margin-top: 0;
+  color: #444;
 }
 
 .order-box ul {
-  list-style: disc;
-  margin-left: 20px;
-  margin-top: 10px;
+  padding-left: 15px;
 }
 
-.time {
-  font-size: 0.9em;
-  color: #666;
-  margin: 10px 0;
+.status-buttons {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .status-button {
   padding: 8px 14px;
-  font-size: 0.95em;
-  font-weight: bold;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.3s ease;
+  background: #e0e0e0;
+  transition: background 0.2s;
+}
+
+.status-button:hover {
+  background: #ccc;
+}
+
+.status-button.active {
+  font-weight: bold;
   color: white;
 }
 
-/* Status Colors */
-.status-Bestellt {
-  background: #007bff;
-}
-.status-Wirdvorbereitet {
-  background: #17a2b8;
-}
-.status-InBearbeitung {
-  background: #ffc107;
-  color: #111;
-}
-.status-Abholbereit {
-  background: #28a745;
-}
-.status-Bezahlt {
-  background: #6c757d;
-}
-.status-Storniert {
-  background: #dc3545;
+.status-button.bestellt {
+  background: #3498db;
 }
 
-/* Responsive (optional) */
-@media (max-width: 600px) {
-  .container {
-    padding: 15px;
-  }
-  .order-box {
-    padding: 10px;
-  }
+.status-button.in-bearbeitung {
+  background: #f39c12;
+}
+
+.status-button.abholbereit {
+  background: #27ae60;
+}
+
+.status-button.bezahlt {
+  background: #8e44ad;
+}
+
+.status-button.erledigt {
+  background: #95a5a6;
 }
