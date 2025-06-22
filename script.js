@@ -29,8 +29,6 @@ async function loadMenu() {
         <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">
       </div>`;
   });
-
-  updateCart(); // initial
 }
 
 function updateCart() {
@@ -53,6 +51,7 @@ function updateCart() {
 
 async function submitOrder() {
   orderButton.disabled = true;
+
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) {
     alert("Bitte geben Sie eine gültige Tischnummer ein.");
@@ -74,7 +73,6 @@ async function submitOrder() {
 
   statusDisplay.textContent = "Bestellt";
   statusDisplay.className = "status-label status-bestellt";
-
   cart = [];
   updateCart();
 }
@@ -83,31 +81,29 @@ async function updateStatus() {
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) return;
 
-  try {
-    const res = await fetch(`/status/${table}`);
-    const data = await res.json();
-    const status = data.status || "-";
-    statusDisplay.textContent = status;
+  const res = await fetch(`/status/${table}`);
+  const data = await res.json();
 
-    statusDisplay.className = "status-label";
-    switch (status) {
-      case "Bestellt":
-        statusDisplay.classList.add("status-bestellt");
-        break;
-      case "In Bearbeitung":
-        statusDisplay.classList.add("status-bearbeitung");
-        break;
-      case "Abholbereit":
-        statusDisplay.classList.add("status-abholbereit");
-        break;
-      case "Bezahlt":
-        statusDisplay.classList.add("status-bezahlt");
-        break;
-      default:
-        statusDisplay.classList.add("status-none");
-    }
-  } catch (err) {
-    console.error("Status konnte nicht geladen werden:", err);
+  const status = data.status || "-";
+  statusDisplay.textContent = status;
+
+  statusDisplay.className = "status-label"; // reset
+
+  switch (status) {
+    case "Bestellt":
+      statusDisplay.classList.add("status-bestellt");
+      break;
+    case "In Bearbeitung":
+      statusDisplay.classList.add("status-bearbeitung");
+      break;
+    case "Abholbereit":
+      statusDisplay.classList.add("status-abholbereit");
+      break;
+    case "Bezahlt":
+      statusDisplay.classList.add("status-bezahlt");
+      break;
+    default:
+      statusDisplay.classList.add("status-none");
   }
 }
 
