@@ -2,98 +2,84 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Küchenansicht</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>🍽️ Küchenansicht</h1>
-
-    <h2>📋 Offene Bestellungen pro Menü</h2>
-    <ul id="summaryList"></ul>
-
-    <h2>🧾 Einzelne Bestellungen</h2>
-    <div id="ordersContainer"></div>
-  </div>
+  <h1>Küchenansicht</h1>
+  <div id="menuSummary"></div>
+  <div id="ordersContainer"></div>
 
   <script>
     async function loadOrders() {
-      const res = await fetch("/orders.json");
+      const res = await fetch("/orders");
       const orders = await res.json();
-      const menuRes = await fetch("/menu.json");
-      const menu = await menuRes.json();
-      const prices = Object.fromEntries(menu.map(m => [m.name, m.price]));
 
+      // Menü-Zusammenfassung berechnen
       const summary = {};
-      const container = document.getElementById("ordersContainer");
-      const summaryList = document.getElementById("summaryList");
-      container.innerHTML = "";
-      summaryList.innerHTML = "";
-
-      orders.forEach((order, index) => {
-        order.items.forEach(item => {
-          summary[item] = (summary[item] || 0) + 1;
-        });
-
-        const orderBox = document.createElement("div");
-        orderBox.className = "order-box";
-
-        const table = document.createElement("h3");
-        table.textContent = `🪑 Tisch ${order.table}`;
-        orderBox.appendChild(table);
-
-        const ul = document.createElement("ul");
-        let sum = 0;
-        order.items.forEach(item => {
-          const li = document.createElement("li");
-          li.textContent = item;
-          ul.appendChild(li);
-          if (prices[item]) sum += prices[item];
-        });
-        orderBox.appendChild(ul);
-
-        const time = document.createElement("p");
-        const d = new Date(order.timestamp);
-        time.innerHTML = `🕒 ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
-        orderBox.appendChild(time);
-
-        const total = document.createElement("p");
-        total.innerHTML = `💰 <strong>${sum.toFixed(2)} CHF</strong>`;
-        orderBox.appendChild(total);
-
-        const statusLabel = document.createElement("div");
-        statusLabel.className = "status-buttons";
-        const statuses = ["Bestellt", "In Bearbeitung", "Abholbereit", "Bezahlt", "Erledigt"];
-        statuses.forEach(s => {
-          const btn = document.createElement("button");
-          btn.textContent = s;
-          btn.className = "status-button";
-          if (order.status === s) btn.classList.add("active", s.toLowerCase().replace(/\s/g, '-'));
-          btn.addEventListener("click", async () => {
-            await fetch("/status", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ index, status: s })
-            });
-            loadOrders();
+      orders
+        .filter(o => !["Bezahlt", "Erledigt"].includes(o.status))
+        .forEach(o => {
+          o.items.forEach(item => {
+            summary[item] = (summary[item] || 0) + 1;
           });
-          statusLabel.appendChild(btn);
         });
 
-        orderBox.appendChild(statusLabel);
-        container.appendChild(orderBox);
-      });
+      const menuDiv = document.getElementById("menuSummary");
+      menuDiv.innerHTML = "<h3>Offene Speisen/Getränke:</h3>";
+      for (const [item, count] of Object.entries(summary)) {
+        menuDiv.innerHTML += `<div>${count}× ${item}</div>`;
+      }
 
-      for (const item in summary) {
-        const li = document.createElement("li");
-        li.textContent = `${item}: ${summary[item]}x`;
-        summaryList.appendChild(li);
+      const container = document.getElementById("ordersContainer");
+      container.innerHTML = "";
+
+      orders
+        .sort((a, b) => new Date(a.time) - new Date(b.time))
+        .forEach(order => {
+          const div = document.createElement("div");
+          div.className = `order ${order.status.toLowerCase().replace(" ", "-")}`;
+          div.innerHTML = `
+            <h3>Tisch ${order.table}</h3>
+            <p>${order.items.join(", ")}</p>
+            <p><strong>Preis:</strong> ${order.price} CHF</p>
+            <p><strong>Status:</strong> ${order.status}</p>
+            <div class="btn-group">
+              ${["Bestellt", "In Bearbeitung", "Abholbereit", "Bezahlt", "Erledigt"].map(status => `
+                <button onclick="updateStatus(${order.id}, '${status}')" 
+                  ${order.status === status ? 'style="background:#ccc;"' : ''}>
+                  ${status}
+                </button>
+              `).join("")}
+              <button onclick="deleteOrder(${order.id})" style="background: #f55;">Löschen</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+    }
+
+    async function updateStatus(id, status) {
+      await fetch("/update-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status })
+      });
+      loadOrders();
+    }
+
+    async function deleteOrder(id) {
+      if (confirm("Wirklich löschen?")) {
+        await fetch("/delete-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
+        loadOrders();
       }
     }
 
     loadOrders();
-    setInterval(loadOrders, 4000);
+    setInterval(loadOrders, 5000);
   </script>
 </body>
 </html>
