@@ -54,11 +54,13 @@ async function submitOrder() {
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) {
     alert("Bitte geben Sie eine gültige Tischnummer ein.");
+    orderButton.disabled = false;
     return;
   }
 
   if (cart.length === 0) {
     alert("Bitte wählen Sie mindestens ein Produkt aus.");
+    orderButton.disabled = false;
     return;
   }
 
@@ -69,36 +71,42 @@ async function submitOrder() {
   });
 
   statusDisplay.textContent = "Bestellt";
+  statusDisplay.className = "status-label status-bestellt";
+
   cart = [];
   updateCart();
 }
 
 async function updateStatus() {
-  const table = tableSelect.value;
+  const table = tableInput.value.trim();
+  if (!table || isNaN(table)) return;
+
   const res = await fetch(`/status/${table}`);
   const data = await res.json();
 
-  const statusEl = document.getElementById("status");
   const status = data.status || "-";
-
-  statusEl.textContent = status;
-
-  statusEl.className = "status-label"; // Reset all classes
+  statusDisplay.textContent = status;
+  statusDisplay.className = "status-label";
 
   switch (status) {
     case "Bestellt":
-      statusEl.classList.add("status-bestellt");
+      statusDisplay.classList.add("status-bestellt");
       break;
     case "In Bearbeitung":
-      statusEl.classList.add("status-bearbeitung");
+      statusDisplay.classList.add("status-bearbeitung");
       break;
     case "Abholbereit":
-      statusEl.classList.add("status-abholbereit");
+      statusDisplay.classList.add("status-abholbereit");
       break;
     case "Bezahlt":
-      statusEl.classList.add("status-bezahlt");
+      statusDisplay.classList.add("status-bezahlt");
       break;
     default:
-      statusEl.classList.add("status-none");
+      statusDisplay.classList.add("status-none");
   }
 }
+
+// Initialisierung
+loadMenu();
+setInterval(updateStatus, 4000);
+orderButton.addEventListener("click", submitOrder);
