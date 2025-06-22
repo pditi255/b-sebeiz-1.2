@@ -1,106 +1,84 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-  margin: 0;
-  padding: 20px;
-  color: #333;
+  margin: 20px;
+  background-color: #f9f9f9;
+  color: #222;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
-  color: #1a1a1a;
+  color: #1e3d59;
+  margin-bottom: 15px;
 }
 
 .order-box {
-  border-left: 5px solid #007bff;
-  background-color: #f9f9f9;
-  margin: 15px 0;
-  padding: 15px;
-  border-radius: 5px;
-  position: relative;
-}
-
-.order-box.done {
-  opacity: 0.4;
-}
-
-.order-box h3 {
-  margin-top: 0;
+  border-left: 4px solid #007bff;
+  background: #f0f4f8;
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
 }
 
 .order-box ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 8px 0;
-}
-
-.order-box ul li::before {
-  content: "• ";
-  color: #007bff;
-}
-
-button, select {
-  padding: 6px 12px;
+  list-style: disc;
+  margin-left: 20px;
   margin-top: 10px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-}
-
-button.done-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  margin-left: 10px;
-}
-
-button.done-btn:hover {
-  background-color: #218838;
-}
-
-select.status-select {
-  background-color: #fff;
-}
-
-.status-label {
-  font-weight: bold;
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 4px;
-  margin-top: 5px;
-}
-
-.status-Bestellt {
-  background-color: #007bff;
-  color: white;
-}
-
-.status-In\ Bearbeitung {
-  background-color: #ffc107;
-  color: black;
-}
-
-.status-Abholbereit {
-  background-color: #28a745;
-  color: white;
-}
-
-.status-Bezahlt {
-  background-color: #6c757d;
-  color: white;
 }
 
 .time {
   font-size: 0.9em;
   color: #666;
-  margin-top: 5px;
+  margin: 10px 0;
+}
+
+.status-button {
+  padding: 8px 14px;
+  font-size: 0.95em;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+  color: white;
+}
+
+/* Status Colors */
+.status-Bestellt {
+  background: #007bff;
+}
+.status-Wirdvorbereitet {
+  background: #17a2b8;
+}
+.status-InBearbeitung {
+  background: #ffc107;
+  color: #111;
+}
+.status-Abholbereit {
+  background: #28a745;
+}
+.status-Bezahlt {
+  background: #6c757d;
+}
+.status-Storniert {
+  background: #dc3545;
+}
+
+/* Responsive (optional) */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+  .order-box {
+    padding: 10px;
+  }
 }
