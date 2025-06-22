@@ -1,88 +1,71 @@
 body {
-  font-family: sans-serif;
-  background: #f4f4f4;
-  margin: 0;
+  font-family: Arial, sans-serif;
   padding: 20px;
+  background-color: #f9f9f9;
+}
+
+h1 {
   color: #333;
 }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
-}
-
-h1, h2 {
-  text-align: center;
-  color: #222;
-}
-
-ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.order-box {
-  background: #fafafa;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+#menuSummary {
   margin-bottom: 20px;
-  padding: 15px;
-}
-
-.order-box h3 {
-  margin-top: 0;
-  color: #444;
-}
-
-.order-box ul {
-  padding-left: 15px;
-}
-
-.status-buttons {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.status-button {
-  padding: 8px 14px;
-  border: none;
+  padding: 10px;
+  background: #eef;
   border-radius: 5px;
+}
+
+#ordersContainer .order {
+  background: white;
+  border: 1px solid #ccc;
+  border-left: 6px solid #888;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.order h3 {
+  margin: 0 0 5px;
+}
+
+.order p {
+  margin: 4px 0;
+}
+
+.btn-group {
+  margin-top: 10px;
+}
+
+.btn-group button {
+  margin-right: 5px;
+  padding: 6px 10px;
+  border: none;
+  background: #ddd;
+  border-radius: 4px;
   cursor: pointer;
-  background: #e0e0e0;
-  transition: background 0.2s;
 }
 
-.status-button:hover {
-  background: #ccc;
+.btn-group button:hover {
+  background: #bbb;
 }
 
-.status-button.active {
-  font-weight: bold;
-  color: white;
+.order.bestellt {
+  border-left-color: blue;
 }
 
-.status-button.bestellt {
-  background: #3498db;
+.order.in-bearbeitung {
+  border-left-color: orange;
 }
 
-.status-button.in-bearbeitung {
-  background: #f39c12;
+.order.abholbereit {
+  border-left-color: green;
 }
 
-.status-button.abholbereit {
-  background: #27ae60;
+.order.bezahlt {
+  border-left-color: gray;
 }
 
-.status-button.bezahlt {
-  background: #8e44ad;
-}
-
-.status-button.erledigt {
-  background: #95a5a6;
+.order.erledigt {
+  border-left-color: black;
 }
