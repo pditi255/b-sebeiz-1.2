@@ -12,7 +12,7 @@ async function loadMenu() {
   menu = await res.json();
 
   const essen = menu.filter(item => item.type === "essen");
-  const getraenke = menu.filter(item => item.type === "getränk");
+  const getraenke = menu.filter(item => item.type === "getraenk");
 
   menuContainer.innerHTML = "<h3>Speisen</h3>";
   essen.forEach(item => {
@@ -29,6 +29,8 @@ async function loadMenu() {
         <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">
       </div>`;
   });
+
+  updateCart(); // initial
 }
 
 function updateCart() {
@@ -37,17 +39,15 @@ function updateCart() {
   const inputs = document.querySelectorAll("input[type='number']");
   inputs.forEach(input => {
     const count = parseInt(input.value);
-    const price = parseFloat(input.dataset.price);
-    const name = input.dataset.name;
-
-    if (!isNaN(count) && count > 0 && !isNaN(price)) {
+    if (!isNaN(count) && count > 0) {
+      const name = input.dataset.name;
+      const price = parseFloat(input.dataset.price);
       for (let i = 0; i < count; i++) {
         cart.push(name);
+        sum += price;
       }
-      sum += count * price;
     }
   });
-
   totalDisplay.textContent = sum.toFixed(2);
 }
 
@@ -73,42 +73,42 @@ async function submitOrder() {
   });
 
   statusDisplay.textContent = "Bestellt";
-  updateStatusStyle("Bestellt");
+  statusDisplay.className = "status-label status-bestellt";
+
   cart = [];
   updateCart();
-}
-
-function updateStatusStyle(status) {
-  statusDisplay.className = "status-label";
-
-  switch (status) {
-    case "Bestellt":
-      statusDisplay.classList.add("status-bestellt");
-      break;
-    case "In Bearbeitung":
-      statusDisplay.classList.add("status-bearbeitung");
-      break;
-    case "Abholbereit":
-      statusDisplay.classList.add("status-abholbereit");
-      break;
-    case "Bezahlt":
-      statusDisplay.classList.add("status-bezahlt");
-      break;
-    default:
-      statusDisplay.classList.add("status-none");
-  }
 }
 
 async function updateStatus() {
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) return;
 
-  const res = await fetch(`/status/${table}`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`/status/${table}`);
+    const data = await res.json();
+    const status = data.status || "-";
+    statusDisplay.textContent = status;
 
-  const status = data.status || "-";
-  statusDisplay.textContent = status;
-  updateStatusStyle(status);
+    statusDisplay.className = "status-label";
+    switch (status) {
+      case "Bestellt":
+        statusDisplay.classList.add("status-bestellt");
+        break;
+      case "In Bearbeitung":
+        statusDisplay.classList.add("status-bearbeitung");
+        break;
+      case "Abholbereit":
+        statusDisplay.classList.add("status-abholbereit");
+        break;
+      case "Bezahlt":
+        statusDisplay.classList.add("status-bezahlt");
+        break;
+      default:
+        statusDisplay.classList.add("status-none");
+    }
+  } catch (err) {
+    console.error("Status konnte nicht geladen werden:", err);
+  }
 }
 
 orderButton.addEventListener("click", submitOrder);
