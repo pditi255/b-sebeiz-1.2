@@ -1,85 +1,70 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background-color: #f9f9f9;
+  font-family: sans-serif;
+  background-color: #f8f8f8;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h3 {
   color: #333;
 }
 
-h1, h2, h3 {
-  color: #222;
-}
-
 input[type="number"] {
-  width: 60px;
   margin-left: 10px;
+  width: 50px;
 }
 
-div {
-  margin-bottom: 10px;
-}
-
-/* Status-Farben */
-.status-label {
-  font-weight: bold;
-  font-size: 1.2em;
+.btn-bestellen {
   margin-top: 10px;
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 5px;
+  background-color: green;
   color: white;
+  font-weight: bold;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-bestellen:disabled {
+  background-color: #aaa;
+}
+
+.status-label {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
 .status-bestellt {
-  background-color: #007bff; /* Blau */
+  background-color: #007bff;
+  color: white;
 }
 
 .status-bearbeitung {
-  background-color: #fd7e14; /* Orange */
+  background-color: orange;
+  color: white;
 }
 
 .status-abholbereit {
-  background-color: #28a745; /* Grün */
+  background-color: green;
+  color: white;
 }
 
 .status-bezahlt {
-  background-color: #6c757d; /* Grau */
+  background-color: gray;
+  color: white;
 }
 
 .status-none {
-  background-color: #ccc;
+  background-color: transparent;
   color: black;
-}
-
-/* Bestellbutton */
-#orderButton {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
-  font-weight: bold;
-  font-size: 1em;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-#orderButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Gesamtpreis */
-#total {
-  font-weight: bold;
-  font-size: 1.1em;
-  margin-top: 8px;
-  display: inline-block;
-}
-
-/* Hinweis unter dem Button */
-#hinweis {
-  font-style: italic;
-  margin-top: 12px;
-  font-size: 0.9em;
-  color: #555;
 }
