@@ -1,102 +1,85 @@
 body {
   font-family: Arial, sans-serif;
-  padding: 20px;
-  background-color: #f4f4f4;
+  margin: 20px;
+  background-color: #f9f9f9;
   color: #333;
 }
 
 h1, h2, h3 {
-  color: #2c3e50;
+  color: #222;
 }
 
-button {
-  padding: 10px 15px;
-  margin: 5px;
-  border: none;
-  background-color: #2980b9;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-button:hover {
-  background-color: #3498db;
-}
-
-input[type="number"], select, textarea {
-  padding: 5px;
-  margin: 5px;
+input[type="number"] {
   width: 60px;
+  margin-left: 10px;
 }
 
-#menuContainer div, #summary div {
-  background-color: white;
-  margin-bottom: 4px;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+div {
+  margin-bottom: 10px;
 }
 
-#orders div {
-  background-color: #ecf0f1;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 5px;
-}
-
-#orders strong {
-  font-size: 18px;
-  color: #e67e22;
-}
-
-#settings {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 5px;
-}
-#submitBtn {
-  background-color: #28a745;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-#submitBtn:hover {
-  background-color: #218838;
-}
-
+/* Status-Farben */
 .status-label {
   font-weight: bold;
-  padding: 6px 12px;
-  border-radius: 6px;
+  font-size: 1.2em;
+  margin-top: 10px;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 5px;
+  color: white;
 }
 
 .status-bestellt {
-  background-color: #007bff;
-  color: white;
+  background-color: #007bff; /* Blau */
 }
 
 .status-bearbeitung {
-  background-color: #fd7e14;
-  color: white;
+  background-color: #fd7e14; /* Orange */
 }
 
 .status-abholbereit {
-  background-color: #28a745;
-  color: white;
+  background-color: #28a745; /* Grün */
 }
 
 .status-bezahlt {
-  background-color: #6c757d;
-  color: white;
+  background-color: #6c757d; /* Grau */
 }
 
 .status-none {
-  background-color: #dc3545;
+  background-color: #ccc;
+  color: black;
+}
+
+/* Bestellbutton */
+#orderButton {
+  background-color: #28a745;
   color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1em;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#orderButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Gesamtpreis */
+#total {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+/* Hinweis unter dem Button */
+#hinweis {
+  font-style: italic;
+  margin-top: 12px;
+  font-size: 0.9em;
+  color: #555;
 }
