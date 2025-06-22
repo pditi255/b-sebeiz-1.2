@@ -12,20 +12,20 @@ async function loadMenu() {
   menu = await res.json();
 
   const essen = menu.filter(item => item.type === "essen");
-  const getraenke = menu.filter(item => item.type === "getraenk");
+  const getraenke = menu.filter(item => item.type === "getränk");
 
-  menuContainer.innerHTML = "<h2>Speisen</h2>";
+  menuContainer.innerHTML = "<h3>Speisen</h3>";
   essen.forEach(item => {
     menuContainer.innerHTML += `
-      <div class="menu-item">${item.name} (${item.price} CHF)
+      <div>${item.name} (${item.price} CHF)
         <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">
       </div>`;
   });
 
-  menuContainer.innerHTML += "<h2>Getränke</h2>";
+  menuContainer.innerHTML += "<h3>Getränke</h3>";
   getraenke.forEach(item => {
     menuContainer.innerHTML += `
-      <div class="menu-item">${item.name} (${item.price} CHF)
+      <div>${item.name} (${item.price} CHF)
         <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">
       </div>`;
   });
@@ -37,9 +37,9 @@ function updateCart() {
   const inputs = document.querySelectorAll("input[type='number']");
   inputs.forEach(input => {
     const count = parseInt(input.value);
-    if (!isNaN(count) && count > 0) {
-      const name = input.dataset.name;
-      const price = parseFloat(input.dataset.price);
+    const name = input.dataset.name;
+    const price = parseFloat(input.dataset.price);
+    if (!isNaN(count) && count > 0 && name && !isNaN(price)) {
       for (let i = 0; i < count; i++) {
         cart.push(name);
         sum += price;
@@ -54,13 +54,11 @@ async function submitOrder() {
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) {
     alert("Bitte geben Sie eine gültige Tischnummer ein.");
-    orderButton.disabled = false;
     return;
   }
 
   if (cart.length === 0) {
     alert("Bitte wählen Sie mindestens ein Produkt aus.");
-    orderButton.disabled = false;
     return;
   }
 
@@ -71,7 +69,6 @@ async function submitOrder() {
   });
 
   statusDisplay.textContent = "Bestellt";
-  statusDisplay.className = "status-label status-bestellt";
   cart = [];
   updateCart();
 }
@@ -80,32 +77,28 @@ async function updateStatus() {
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) return;
 
-  try {
-    const res = await fetch(`/status/${table}`);
-    const data = await res.json();
+  const res = await fetch(`/status/${table}`);
+  const data = await res.json();
+  const statusEl = document.getElementById("status");
+  const status = data.status || "-";
 
-    const status = data.status || "-";
-    statusDisplay.textContent = status;
-    statusDisplay.className = "status-label";
-
-    switch (status) {
-      case "Bestellt":
-        statusDisplay.classList.add("status-bestellt");
-        break;
-      case "In Bearbeitung":
-        statusDisplay.classList.add("status-bearbeitung");
-        break;
-      case "Abholbereit":
-        statusDisplay.classList.add("status-abholbereit");
-        break;
-      case "Bezahlt":
-        statusDisplay.classList.add("status-bezahlt");
-        break;
-      default:
-        statusDisplay.classList.add("status-none");
-    }
-  } catch (e) {
-    console.error("Statusabfrage fehlgeschlagen:", e);
+  statusEl.textContent = status;
+  statusEl.className = "status-label";
+  switch (status) {
+    case "Bestellt":
+      statusEl.classList.add("status-bestellt");
+      break;
+    case "In Bearbeitung":
+      statusEl.classList.add("status-bearbeitung");
+      break;
+    case "Abholbereit":
+      statusEl.classList.add("status-abholbereit");
+      break;
+    case "Bezahlt":
+      statusEl.classList.add("status-bezahlt");
+      break;
+    default:
+      statusEl.classList.add("status-none");
   }
 }
 
