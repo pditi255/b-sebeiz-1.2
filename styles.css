@@ -56,3 +56,47 @@ input[type="number"], select, textarea {
   padding: 10px;
   border-radius: 5px;
 }
+#submitBtn {
+  background-color: #28a745;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#submitBtn:hover {
+  background-color: #218838;
+}
+
+.status-label {
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.status-bestellt {
+  background-color: #007bff;
+  color: white;
+}
+
+.status-bearbeitung {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.status-abholbereit {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-bezahlt {
+  background-color: #6c757d;
+  color: white;
+}
+
+.status-none {
+  background-color: #dc3545;
+  color: white;
+}
