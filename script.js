@@ -14,18 +14,18 @@ async function loadMenu() {
   const essen = menu.filter(item => item.type === "essen");
   const getraenke = menu.filter(item => item.type === "getraenk");
 
-  menuContainer.innerHTML = "<h3>Speisen</h3>";
+  menuContainer.innerHTML = "<h2>Speisen</h2>";
   essen.forEach(item => {
     menuContainer.innerHTML += `
-      <div>${item.name} (${item.price} CHF)
+      <div class="menu-item">${item.name} (${item.price} CHF)
         <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">
       </div>`;
   });
 
-  menuContainer.innerHTML += "<h3>Getränke</h3>";
+  menuContainer.innerHTML += "<h2>Getränke</h2>";
   getraenke.forEach(item => {
     menuContainer.innerHTML += `
-      <div>${item.name} (${item.price} CHF)
+      <div class="menu-item">${item.name} (${item.price} CHF)
         <input type="number" min="0" value="0" data-name="${item.name}" data-price="${item.price}" onchange="updateCart()">
       </div>`;
   });
@@ -51,7 +51,6 @@ function updateCart() {
 
 async function submitOrder() {
   orderButton.disabled = true;
-
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) {
     alert("Bitte geben Sie eine gültige Tischnummer ein.");
@@ -81,29 +80,32 @@ async function updateStatus() {
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) return;
 
-  const res = await fetch(`/status/${table}`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`/status/${table}`);
+    const data = await res.json();
 
-  const status = data.status || "-";
-  statusDisplay.textContent = status;
+    const status = data.status || "-";
+    statusDisplay.textContent = status;
+    statusDisplay.className = "status-label";
 
-  statusDisplay.className = "status-label"; // reset
-
-  switch (status) {
-    case "Bestellt":
-      statusDisplay.classList.add("status-bestellt");
-      break;
-    case "In Bearbeitung":
-      statusDisplay.classList.add("status-bearbeitung");
-      break;
-    case "Abholbereit":
-      statusDisplay.classList.add("status-abholbereit");
-      break;
-    case "Bezahlt":
-      statusDisplay.classList.add("status-bezahlt");
-      break;
-    default:
-      statusDisplay.classList.add("status-none");
+    switch (status) {
+      case "Bestellt":
+        statusDisplay.classList.add("status-bestellt");
+        break;
+      case "In Bearbeitung":
+        statusDisplay.classList.add("status-bearbeitung");
+        break;
+      case "Abholbereit":
+        statusDisplay.classList.add("status-abholbereit");
+        break;
+      case "Bezahlt":
+        statusDisplay.classList.add("status-bezahlt");
+        break;
+      default:
+        statusDisplay.classList.add("status-none");
+    }
+  } catch (e) {
+    console.error("Statusabfrage fehlgeschlagen:", e);
   }
 }
 
