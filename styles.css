@@ -1,46 +1,45 @@
 body {
-  font-family: sans-serif;
-  background-color: #f8f8f8;
-  margin: 0;
+  font-family: Arial, sans-serif;
   padding: 20px;
+  background: #f4f4f4;
 }
 
 .container {
-  max-width: 600px;
-  margin: auto;
   background: white;
   padding: 20px;
+  max-width: 600px;
+  margin: auto;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-h1, h3 {
-  color: #333;
+.menu-item {
+  margin-bottom: 10px;
 }
 
 input[type="number"] {
   margin-left: 10px;
-  width: 50px;
+  width: 60px;
 }
 
-.btn-bestellen {
-  margin-top: 10px;
-  background-color: green;
+#orderButton {
+  padding: 10px 20px;
+  background-color: #28a745;
   color: white;
-  font-weight: bold;
+  font-size: 16px;
   border: none;
-  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.btn-bestellen:disabled {
-  background-color: #aaa;
+#orderButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .status-label {
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 4px 10px;
+  border-radius: 4px;
   font-weight: bold;
 }
 
@@ -50,17 +49,17 @@ input[type="number"] {
 }
 
 .status-bearbeitung {
-  background-color: orange;
+  background-color: #fd7e14;
   color: white;
 }
 
 .status-abholbereit {
-  background-color: green;
+  background-color: #28a745;
   color: white;
 }
 
 .status-bezahlt {
-  background-color: gray;
+  background-color: #6c757d;
   color: white;
 }
 
