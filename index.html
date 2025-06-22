@@ -10,17 +10,17 @@
     <h1>Willkommen beim Fest!</h1>
 
     <label for="table">Tischnummer:</label>
-    <input type="number" id="table" min="1" required>
+    <input type="number" id="table" min="1" placeholder="z. B. 1" />
 
     <div id="menuContainer"></div>
 
-    <h3>Gesamtpreis: <span id="total">0.00</span> CHF</h3>
+    <p><strong>Gesamtpreis:</strong> <span id="total">0.00</span> CHF</p>
 
-    <button id="submitBtn" onclick="submitOrder()">Bestellung abschicken</button>
+    <button id="orderButton" class="btn-bestellen">Bestellung abschicken</button>
 
-    <p style="margin-top: 20px;"><strong>Hinweis:</strong> Diese Seite bitte offen lassen. Status wird laufend aktualisiert.</p>
+    <p><strong>Hinweis:</strong> Diese Seite bitte offen lassen. Status wird laufend aktualisiert.</p>
 
-    <h3>Status: <span id="status" class="status-label">-</span></h3>
+    <p><strong>Status:</strong> <span id="status" class="status-label">-</span></p>
   </div>
 
   <script src="script.js"></script>
