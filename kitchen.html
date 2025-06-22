@@ -1,25 +1,131 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Küchenansicht</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .status-button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+    .status-Bestellt { background: #007bff; }
+    .status-Wirdvorbereitet { background: #17a2b8; }
+    .status-InBearbeitung { background: #ffc107; color: black; }
+    .status-Abholbereit { background: #28a745; }
+    .status-Bezahlt { background: #6c757d; }
+    .status-Storniert { background: #dc3545; }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>🍽️ Küchenansicht</h1>
+    
+    <h2>📋 Offene Bestellungen pro Menü</h2>
+    <ul id="menuTotals"></ul>
 
-    <section>
-      <h2>📋 Offene Bestellungen pro Menü</h2>
-      <div id="summary"></div>
-    </section>
-
-    <section>
-      <h2>🧾 Einzelne Bestellungen</h2>
-      <div id="orders"></div>
-    </section>
+    <h2>🧾 Einzelne Bestellungen</h2>
+    <div id="orders"></div>
   </div>
 
-  <script src="kitchen.js"></script>
+  <script>
+    const statuses = [
+      "Bestellt",
+      "Wird vorbereitet",
+      "In Bearbeitung",
+      "Abholbereit",
+      "Bezahlt",
+      "Storniert"
+    ];
+
+    async function loadOrders() {
+      const res = await fetch("/orders");
+      const data = await res.json();
+
+      const totals = {};
+      const container = document.getElementById("orders");
+      const totalList = document.getElementById("menuTotals");
+
+      container.innerHTML = "";
+      totalList.innerHTML = "";
+
+      data.filter(o => o.status !== "Bezahlt").forEach(order => {
+        order.items.forEach(item => {
+          totals[item] = (totals[item] || 0) + 1;
+        });
+      });
+
+      Object.entries(totals).forEach(([name, count]) => {
+        const li = document.createElement("li");
+        li.textContent = `${name}: ${count}x`;
+        totalList.appendChild(li);
+      });
+
+      data.forEach((order, index) => {
+        const box = document.createElement("div");
+        box.className = "order-box";
+
+        const title = document.createElement("h3");
+        title.textContent = `🪑 Tisch ${order.table}`;
+        box.appendChild(title);
+
+        const list = document.createElement("ul");
+        let price = 0;
+        order.items.forEach(name => {
+          const li = document.createElement("li");
+          li.textContent = name;
+          list.appendChild(li);
+          const item = getPrice(name);
+          if (item) price += item.price;
+        });
+        box.appendChild(list);
+
+        const time = document.createElement("div");
+        time.className = "time";
+        time.textContent = new Date(order.time).toLocaleTimeString();
+        box.appendChild(time);
+
+        const priceTag = document.createElement("div");
+        priceTag.textContent = `💰 Gesamtpreis: ${price.toFixed(2)} CHF`;
+        box.appendChild(priceTag);
+
+        const statusBtn = document.createElement("button");
+        const statusValue = order.status || "Bestellt";
+        statusBtn.textContent = statusValue;
+        statusBtn.className = "status-button status-" + statusValue.replace(/\s/g, "");
+        statusBtn.onclick = async () => {
+          const currentIndex = statuses.indexOf(statusValue);
+          const next = statuses[(currentIndex + 1) % statuses.length];
+          await fetch(`/status/${index}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: next })
+          });
+          loadOrders();
+        };
+        box.appendChild(statusBtn);
+
+        container.appendChild(box);
+      });
+    }
+
+    function getPrice(name) {
+      return menu.find(m => m.name === name);
+    }
+
+    let menu = [];
+    async function loadMenuAndOrders() {
+      const res = await fetch("/menu.json");
+      menu = await res.json();
+      loadOrders();
+    }
+
+    setInterval(loadMenuAndOrders, 3000);
+    loadMenuAndOrders();
+  </script>
 </body>
 </html>
