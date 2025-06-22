@@ -50,6 +50,7 @@ function updateCart() {
 }
 
 async function submitOrder() {
+  orderButton.disabled = true;
   const table = tableInput.value.trim();
   if (!table || isNaN(table)) {
     alert("Bitte geben Sie eine gültige Tischnummer ein.");
