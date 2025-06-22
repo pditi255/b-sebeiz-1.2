@@ -1,83 +1,86 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.static(__dirname));
-app.use(express.json());
-
 const ordersFile = path.join(__dirname, 'orders.json');
-const menuFile = path.join(__dirname, 'menu.json');
-let status = {};
 
-app.post("/order", (req, res) => {
+app.use(express.json());
+app.use(express.static(__dirname));
+
+// Bestellungen speichern
+app.post('/order', (req, res) => {
   const { table, items } = req.body;
-  if (!table || !items) return res.sendStatus(400);
+  if (!table || !Array.isArray(items)) {
+    return res.status(400).send('Ungültige Bestellung');
+  }
 
-  const orders = fs.existsSync(ordersFile)
-    ? JSON.parse(fs.readFileSync(ordersFile))
-    : [];
+  let orders = [];
 
-  orders.push({ table, items, time: new Date() });
+  if (fs.existsSync(ordersFile)) {
+    orders = JSON.parse(fs.readFileSync(ordersFile));
+  }
+
+  const timestamp = new Date().toLocaleTimeString('de-CH', { hour12: false });
+
+  items.forEach(item => {
+    orders.push({
+      table,
+      item,
+      status: 'Bestellt',
+      time: timestamp
+    });
+  });
+
   fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-  status[table] = "Bestellt";
   res.sendStatus(200);
 });
 
-app.get("/orders", (req, res) => {
-  const orders = fs.existsSync(ordersFile)
-    ? JSON.parse(fs.readFileSync(ordersFile))
-    : [];
-  res.json(orders);
-});
+// Status für bestimmte Tischnummer abrufen
+app.get('/status/:table', (req, res) => {
+  const table = parseInt(req.params.table);
+  if (isNaN(table)) return res.status(400).send({ status: "-" });
 
-app.post("/status/:table", (req, res) => {
-  const { table } = req.params;
-  const { status: newStatus } = req.body;
-  status[table] = newStatus;
-  res.sendStatus(200);
-});
+  if (!fs.existsSync(ordersFile)) return res.json({ status: "-" });
 
-app.get("/status/:table", (req, res) => {
-  res.json({ status: status[req.params.table] || "Bestellt" });
-});
-
-app.post("/clear/:table", (req, res) => {
-  if (!fs.existsSync(ordersFile)) return res.sendStatus(200);
   const orders = JSON.parse(fs.readFileSync(ordersFile));
-  const remaining = orders.filter(o => o.table != req.params.table);
-  fs.writeFileSync(ordersFile, JSON.stringify(remaining, null, 2));
-  delete status[req.params.table];
-  res.sendStatus(200);
+  const tableOrders = orders.filter(o => o.table === table);
+
+  const last = tableOrders.reverse().find(o => o.status);
+  res.json({ status: last ? last.status : "-" });
 });
 
-app.post("/menu", (req, res) => {
-  fs.writeFileSync(menuFile, JSON.stringify(req.body, null, 2));
+// Menü abrufen
+app.get('/menu.json', (req, res) => {
+  const menuPath = path.join(__dirname, 'menu.json');
+  if (fs.existsSync(menuPath)) {
+    res.sendFile(menuPath);
+  } else {
+    res.status(404).send("Menu nicht gefunden");
+  }
+});
+
+// Bestellung als abgeschlossen markieren
+app.post('/status/:table/:status', (req, res) => {
+  const table = parseInt(req.params.table);
+  const status = req.params.status;
+
+  if (!fs.existsSync(ordersFile)) return res.sendStatus(404);
+
+  let orders = JSON.parse(fs.readFileSync(ordersFile));
+  orders = orders.map(o => {
+    if (o.table === table) {
+      o.status = status;
+    }
+    return o;
+  });
+
+  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
   res.sendStatus(200);
 });
 
 app.listen(port, () => {
   console.log(`Server läuft auf Port ${port}`);
-});
-// Neuen Status setzen (Küche)
-app.post('/status', (req, res) => {
-  const { table, status } = req.body;
-  if (!fs.existsSync(ordersFile)) return res.status(404).send('Keine Bestellung gefunden');
-
-  let orders = JSON.parse(fs.readFileSync(ordersFile));
-  orders = orders.map(order =>
-    order.table === table ? { ...order, status } : order
-  );
-  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-  res.sendStatus(200);
-});
-
-// Status für Tisch abrufen (Gast)
-app.get('/status/:table', (req, res) => {
-  if (!fs.existsSync(ordersFile)) return res.json({ status: 'Keine Bestellung' });
-  const orders = JSON.parse(fs.readFileSync(ordersFile));
-  const table = parseInt(req.params.table);
-  const order = orders.reverse().find(order => order.table === table);
-  res.json({ status: order?.status || 'Keine Bestellung' });
 });
