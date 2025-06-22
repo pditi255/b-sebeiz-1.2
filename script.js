@@ -37,15 +37,17 @@ function updateCart() {
   const inputs = document.querySelectorAll("input[type='number']");
   inputs.forEach(input => {
     const count = parseInt(input.value);
-    if (!isNaN(count) && count > 0) {
-      const name = input.dataset.name;
-      const price = parseFloat(input.dataset.price);
+    const price = parseFloat(input.dataset.price);
+    const name = input.dataset.name;
+
+    if (!isNaN(count) && count > 0 && !isNaN(price)) {
       for (let i = 0; i < count; i++) {
         cart.push(name);
-        sum += price;
       }
+      sum += count * price;
     }
   });
+
   totalDisplay.textContent = sum.toFixed(2);
 }
 
@@ -71,21 +73,12 @@ async function submitOrder() {
   });
 
   statusDisplay.textContent = "Bestellt";
-  statusDisplay.className = "status-label status-bestellt";
-
+  updateStatusStyle("Bestellt");
   cart = [];
   updateCart();
 }
 
-async function updateStatus() {
-  const table = tableInput.value.trim();
-  if (!table || isNaN(table)) return;
-
-  const res = await fetch(`/status/${table}`);
-  const data = await res.json();
-
-  const status = data.status || "-";
-  statusDisplay.textContent = status;
+function updateStatusStyle(status) {
   statusDisplay.className = "status-label";
 
   switch (status) {
@@ -106,7 +99,18 @@ async function updateStatus() {
   }
 }
 
-// Initialisierung
+async function updateStatus() {
+  const table = tableInput.value.trim();
+  if (!table || isNaN(table)) return;
+
+  const res = await fetch(`/status/${table}`);
+  const data = await res.json();
+
+  const status = data.status || "-";
+  statusDisplay.textContent = status;
+  updateStatusStyle(status);
+}
+
+orderButton.addEventListener("click", submitOrder);
 loadMenu();
 setInterval(updateStatus, 4000);
-orderButton.addEventListener("click", submitOrder);
