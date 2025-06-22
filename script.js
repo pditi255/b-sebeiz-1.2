@@ -73,14 +73,31 @@ async function submitOrder() {
 }
 
 async function updateStatus() {
-  const table = tableInput.value.trim();
-  if (!table || isNaN(table)) return;
+  const table = tableSelect.value;
   const res = await fetch(`/status/${table}`);
   const data = await res.json();
-  statusDisplay.textContent = data.status || "-";
+
+  const statusEl = document.getElementById("status");
+  const status = data.status || "-";
+
+  statusEl.textContent = status;
+
+  statusEl.className = "status-label"; // Reset all classes
+
+  switch (status) {
+    case "Bestellt":
+      statusEl.classList.add("status-bestellt");
+      break;
+    case "In Bearbeitung":
+      statusEl.classList.add("status-bearbeitung");
+      break;
+    case "Abholbereit":
+      statusEl.classList.add("status-abholbereit");
+      break;
+    case "Bezahlt":
+      statusEl.classList.add("status-bezahlt");
+      break;
+    default:
+      statusEl.classList.add("status-none");
+  }
 }
-
-orderButton.addEventListener("click", submitOrder);
-
-loadMenu();
-setInterval(updateStatus, 4000);
